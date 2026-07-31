@@ -97,12 +97,33 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 
 /* 新插入的空行样式 */
 tr.new-row { background: #fffbe6; }
-tr.new-row td.grp-name { font-style: italic; color: #999; }
+tr.new-row td.grp-name { font-style: italic; color: #999; position: relative; }
 tr.new-row td[contenteditable="true"]:empty::before {
   content: attr(data-placeholder);
   color: #ccc;
   font-style: italic;
 }
+
+/* 新增行删除按钮 */
+.btn-del-row {
+  display: inline-block;
+  background: transparent;
+  color: #ccc;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  width: 18px;
+  height: 18px;
+  line-height: 16px;
+  text-align: center;
+  padding: 0;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.btn-del-row:hover { background: #ff4d4f; color: #fff; }
 
 /* Rate colors */
 .rate-high { color: #52c41a; font-weight: 600; }
@@ -1908,7 +1929,12 @@ function saveCustomRows(rows) {
 function collectRowData(row) {
   var cells = {};
   var nameCell = row.querySelector('td.grp-name');
-  cells.name = nameCell ? nameCell.textContent : '';
+  if (nameCell) {
+    var clone = nameCell.cloneNode(true);
+    var btn = clone.querySelector('.btn-del-row');
+    if (btn) btn.remove();
+    cells.name = clone.textContent;
+  }
   row.querySelectorAll('td[data-num-col]').forEach(function(c) {
     cells[c.getAttribute('data-num-col')] = c.textContent;
   });
@@ -1969,7 +1995,7 @@ function createCustomRow(regionKey, rowId, cells) {
   tr.className = 'new-row';
   tr.setAttribute('data-row-id', rowId);
   tr.innerHTML =
-    '<td class="grp-name" contenteditable="true" data-placeholder="输入项目名称">'+nameVal+'</td>'+
+    '<td class="grp-name" contenteditable="true" data-placeholder="输入项目名称"><button type="button" class="btn-del-row" contenteditable="false" title="删除此行">&times;</button>'+nameVal+'</td>'+
     '<td class="grp-h1" contenteditable="true" data-placeholder="0" data-num-col="h1-online">'+h1On+'</td>'+
     '<td class="grp-h1" contenteditable="true" data-placeholder="0" data-num-col="h1-total">'+h1Tot+'</td>'+
     '<td class="grp-h1 rate-auto '+(h1RC||'')+'" data-rate-for="h1">'+h1Rate+'</td>'+
@@ -2119,7 +2145,7 @@ document.addEventListener('click', function(e) {
   newRow.className = 'new-row';
   newRow.setAttribute('data-row-id', rowId);
   newRow.innerHTML = `
-    <td class="grp-name" contenteditable="true" data-placeholder="输入项目名称"></td>
+    <td class="grp-name" contenteditable="true" data-placeholder="输入项目名称"><button type="button" class="btn-del-row" contenteditable="false" title="删除此行">&times;</button></td>
     <td class="grp-h1" contenteditable="true" data-placeholder="0" data-num-col="h1-online"></td>
     <td class="grp-h1" contenteditable="true" data-placeholder="0" data-num-col="h1-total"></td>
     <td class="grp-h1 rate-auto" data-rate-for="h1">—</td>
@@ -2140,6 +2166,20 @@ document.addEventListener('click', function(e) {
 
   const nameCell = newRow.querySelector('td.grp-name');
   if (nameCell) nameCell.focus();
+});
+
+// 删除新增行按钮
+document.addEventListener('click', function(e) {
+  if (!e.target.matches('.btn-del-row')) return;
+  var row = e.target.closest('tr.new-row');
+  if (!row) return;
+  var rowId = row.getAttribute('data-row-id');
+  // 从DOM移除
+  row.remove();
+  // 从localStorage删除
+  if (rowId) deleteRowData(rowId);
+  // 重新计算汇总
+  recalcAllSums();
 });
 
 // 新增行输入监听：自动算线上率 + 2026H2自然流量
