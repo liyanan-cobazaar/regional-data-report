@@ -1895,6 +1895,135 @@ function recalcSums(editedCell) {
   }
 }
 
+// ====== localStorage 持久化（新增项目刷新不丢） ======
+var STORAGE_KEY = 'regional-report-custom-rows-v1';
+
+function getCustomRows() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e) { return []; }
+}
+function saveCustomRows(rows) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)); } catch(e) {}
+}
+function collectRowData(row) {
+  var cells = {};
+  var nameCell = row.querySelector('td.grp-name');
+  cells.name = nameCell ? nameCell.textContent : '';
+  row.querySelectorAll('td[data-num-col]').forEach(function(c) {
+    cells[c.getAttribute('data-num-col')] = c.textContent;
+  });
+  var targetCell = row.querySelector('td.target');
+  if (targetCell) cells.target = targetCell.textContent;
+  return cells;
+}
+function saveRowData(regionKey, rowId, cells) {
+  var rows = getCustomRows();
+  for (var i = 0; i < rows.length; i++) {
+    if (rows[i].id === rowId) { rows[i].cells = cells; saveCustomRows(rows); return; }
+  }
+  rows.push({ regionKey: regionKey, id: rowId, cells: cells });
+  saveCustomRows(rows);
+}
+function deleteRowData(rowId) {
+  saveCustomRows(getCustomRows().filter(function(r) { return r.id !== rowId; }));
+}
+function updateRowCell(row, colKey) {
+  var rowId = row.getAttribute('data-row-id');
+  if (!rowId) return;
+  var regionKey = (row.querySelector('td.target') || {}).getAttribute
+    ? (row.querySelector('td.target').getAttribute('data-project-region') || '') : '';
+  saveRowData(regionKey, rowId, collectRowData(row));
+}
+function createCustomRow(regionKey, rowId, cells) {
+  cells = cells || {};
+  var nameVal = cells.name || '';
+  var h1On = cells['h1-online'] || '';
+  var h1Tot = cells['h1-total'] || '';
+  var fullOn = cells['full-online'] || '';
+  var fullTot = cells['full-total'] || '';
+  var h126On = cells['h1-26-online'] || '';
+  var h126Tot = cells['h1-26-total'] || '';
+  var targetVal = cells.target || '';
+
+  function calcRate(on, tot) {
+    var o = parseFloat((on||'').replace(/[^0-9.]/g,''))||0;
+    var t = parseFloat((tot||'').replace(/[^0-9.]/g,''))||0;
+    return t > 0 ? (o/t*100).toFixed(1)+'%' : '\u2014';
+  }
+  function rateClass(on, tot) {
+    var o = parseFloat((on||'').replace(/[^0-9.]/g,''))||0;
+    var t = parseFloat((tot||'').replace(/[^0-9.]/g,''))||0;
+    if (t <= 0) return '';
+    return o/t < 0.4 ? 'rate-low' : 'rate-high';
+  }
+  var h1Rate = calcRate(h1On, h1Tot);
+  var fullRate = calcRate(fullOn, fullTot);
+  var h126Rate = calcRate(h126On, h126Tot);
+  var h1RC = rateClass(h1On, h1Tot);
+  var fullRC = rateClass(fullOn, fullTot);
+  var h126RC = rateClass(h126On, h126Tot);
+  var h126OnNum = parseFloat((h126On||'').replace(/[^0-9.]/g,''))||0;
+  var natural = h126OnNum > 0 ? Math.round(h126OnNum*1.5).toLocaleString() : '0';
+
+  var tr = document.createElement('tr');
+  tr.className = 'new-row';
+  tr.setAttribute('data-row-id', rowId);
+  tr.innerHTML =
+    '<td class="grp-name" contenteditable="true" data-placeholder="输入项目名称">'+nameVal+'</td>'+
+    '<td class="grp-h1" contenteditable="true" data-placeholder="0" data-num-col="h1-online">'+h1On+'</td>'+
+    '<td class="grp-h1" contenteditable="true" data-placeholder="0" data-num-col="h1-total">'+h1Tot+'</td>'+
+    '<td class="grp-h1 rate-auto '+(h1RC||'')+'" data-rate-for="h1">'+h1Rate+'</td>'+
+    '<td class="grp-full" contenteditable="true" data-placeholder="0" data-num-col="full-online">'+fullOn+'</td>'+
+    '<td class="grp-full" contenteditable="true" data-placeholder="0" data-num-col="full-total">'+fullTot+'</td>'+
+    '<td class="grp-full rate-auto '+(fullRC||'')+'" data-rate-for="full">'+fullRate+'</td>'+
+    '<td class="grp-h1-26" contenteditable="true" data-placeholder="0" data-num-col="h1-26-online">'+h126On+'</td>'+
+    '<td class="grp-h1-26" contenteditable="true" data-placeholder="0" data-num-col="h1-26-total">'+h126Tot+'</td>'+
+    '<td class="grp-h1-26 rate-auto '+(h126RC||'')+'" data-rate-for="h1-26">'+h126Rate+'</td>'+
+    '<td class="grp-h2 natural-auto" data-natural-for="h1-26-online">'+natural+'</td>'+
+    '<td class="grp-h2 target" contenteditable="true" data-project-region="'+regionKey+'">'+targetVal+'</td>';
+  return tr;
+}
+function restoreCustomRows() {
+  var rows = getCustomRows();
+  rows.forEach(function(rd) {
+    var btn = document.querySelector('.btn-add-row[data-region-key="'+rd.regionKey+'"]');
+    if (!btn) return;
+    var tbody = btn.closest('.region-section').querySelector('table.detail-table tbody');
+    var sub = tbody.querySelector('tr.sub-total');
+    if (!sub) return;
+    var tr = createCustomRow(rd.regionKey, rd.id, rd.cells);
+    tbody.insertBefore(tr, sub);
+  });
+  recalcAllSums();
+}
+function recalcAllSums() {
+  var regions = ['jzh','bj','dbxb','tj','gdfj','xn'];
+  regions.forEach(function(region) {
+    var sum = 0;
+    document.querySelectorAll('td.target[data-project-region="'+region+'"]').forEach(function(c) {
+      var v = parseFloat(c.textContent.replace(/,/g,''));
+      if (!isNaN(v)) sum += v;
+    });
+    var sc = document.querySelector('td.subtotal-target[data-region="'+region+'"]');
+    if (sc) sc.textContent = sum > 0 ? sum.toLocaleString() : '';
+    var mc = document.querySelector('td.target[data-type="region"][data-region="'+region+'"]');
+    if (mc) mc.textContent = sum > 0 ? sum.toLocaleString() : '';
+  });
+  var grand = 0;
+  document.querySelectorAll('td.target[data-type="region"]').forEach(function(c) {
+    var v = parseFloat(c.textContent.replace(/,/g,''));
+    if (!isNaN(v)) grand += v;
+  });
+  var tc = document.getElementById('total-target');
+  if (tc) tc.textContent = grand > 0 ? grand.toLocaleString() : '';
+}
+// 页面加载后恢复
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', restoreCustomRows);
+} else {
+  restoreCustomRows();
+}
+
 // 输入时：只做汇总计算，不修改文字内容（避免光标跳动）
 document.addEventListener('input', function(e) {
   if (!e.target.matches('td.target[contenteditable="true"]')) return;
@@ -1913,6 +2042,9 @@ document.addEventListener('focusout', function(e) {
   } else {
     e.target.textContent = '';
   }
+  // 新增行的目标值 → 存 localStorage
+  var nrow = e.target.closest('tr.new-row');
+  if (nrow) updateRowCell(nrow, 'target');
 });
 
 // 按键过滤：只允许数字、退格、删除、方向键、小数点
@@ -1982,8 +2114,10 @@ document.addEventListener('click', function(e) {
 
   if (!subtotalRow) return;
 
+  const rowId = 'row-' + regionKey + '-' + Date.now();
   const newRow = document.createElement('tr');
   newRow.className = 'new-row';
+  newRow.setAttribute('data-row-id', rowId);
   newRow.innerHTML = `
     <td class="grp-name" contenteditable="true" data-placeholder="输入项目名称"></td>
     <td class="grp-h1" contenteditable="true" data-placeholder="0" data-num-col="h1-online"></td>
@@ -2000,6 +2134,9 @@ document.addEventListener('click', function(e) {
   `;
 
   tbody.insertBefore(newRow, subtotalRow);
+
+  // 存入 localStorage
+  saveRowData(regionKey, rowId, {});
 
   const nameCell = newRow.querySelector('td.grp-name');
   if (nameCell) nameCell.focus();
@@ -2059,20 +2196,25 @@ document.addEventListener('input', function(e) {
   }
 });
 
-// 新增行失焦格式化
+// 新增行失焦：格式化数字 + 保存到 localStorage
 document.addEventListener('focusout', function(e) {
   if (!e.target.matches('tr.new-row td[contenteditable="true"]')) return;
-  if (e.target.classList.contains('target') || e.target.classList.contains('grp-name')) return;
 
-  let raw = e.target.textContent.replace(/[^0-9.]/g, '');
-  if (raw) {
-    let num = parseFloat(raw);
-    if (!isNaN(num)) {
-      e.target.textContent = num.toLocaleString();
+  // 数字列格式化千分位（target 和项目名称不格式化）
+  if (!e.target.classList.contains('target') && !e.target.classList.contains('grp-name')) {
+    let raw = e.target.textContent.replace(/[^0-9.]/g, '');
+    if (raw) {
+      let num = parseFloat(raw);
+      if (!isNaN(num)) {
+        e.target.textContent = num.toLocaleString();
+      }
+    } else {
+      e.target.textContent = '';
     }
-  } else {
-    e.target.textContent = '';
   }
+
+  // 保存整行数据到 localStorage
+  updateRowCell(e.target.closest('tr.new-row'));
 });
 </script>
 </body>
