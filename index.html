@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>区域数据拆分报告 - 库巴扎运营部</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f6fa; color: #333; line-height: 1.6; }
+.container { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+.header { text-align: center; margin-bottom: 32px; }
+.header h1 { font-size: 24px; color: #1a1a2e; margin-bottom: 8px; }
+.header .subtitle { color: #666; font-size: 14px; }
+.header .meta { color: #999; font-size: 12px; margin-top: 4px; }
+
+.card { background: #fff; border-radius: 8px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.card-title { font-size: 17px; font-weight: 600; color: #1a1a2e; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e8e8e8; }
+
+/* Summary table */
+.summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.summary-table th { background: #f0f2f5; color: #555; font-weight: 600; padding: 10px 8px; text-align: center; border: 1px solid #e0e0e0; white-space: nowrap; }
+.summary-table td { padding: 10px 8px; text-align: center; border: 1px solid #e0e0e0; }
+.summary-table .region-name { font-weight: 600; text-align: left; padding-left: 12px; }
+.summary-table .total-row { background: #fff8e8; font-weight: 700; }
+.summary-table .metric-label { background: #fafafa; color: #888; font-size: 12px; }
+
+/* Region colors */
+.r-jzh { color: #d4380d; }
+.r-bj { color: #1890ff; }
+.r-dbxb { color: #722ed1; }
+.r-tj { color: #13c2c2; }
+.r-gdfj { color: #52c41a; }
+.r-xn { color: #fa8c16; }
+
+/* Detail tables */
+.region-section { margin-bottom: 28px; }
+.region-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.region-header h3 { font-size: 16px; font-weight: 600; }
+.region-header .badge { font-size: 12px; color: #888; background: #f0f2f5; padding: 2px 10px; border-radius: 10px; }
+
+.detail-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.detail-table th { background: #f5f7fa; color: #666; font-weight: 600; padding: 8px 6px; text-align: right; border: 1px solid #e8e8e8; white-space: nowrap; }
+.detail-table th:first-child { text-align: left; padding-left: 10px; }
+.detail-table td { padding: 7px 6px; text-align: right; border: 1px solid #e8e8e8; }
+.detail-table td:first-child { text-align: left; padding-left: 10px; }
+.detail-table tr:hover { background: #fafafa; }
+.detail-table .sub-total { background: #f0f5ff; font-weight: 600; }
+.detail-table .zero { color: #ccc; }
+
+/* Rate colors */
+.rate-high { color: #52c41a; font-weight: 600; }
+.rate-mid { color: #fa8c16; font-weight: 600; }
+.rate-low { color: #f5222d; font-weight: 600; }
+
+/* Insight box */
+.insight { background: #f6f8fa; border-left: 3px solid #1890ff; padding: 12px 16px; margin: 8px 0; font-size: 13px; color: #555; }
+.insight strong { color: #1a1a2e; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container { padding: 12px 8px; }
+  .card { padding: 12px; }
+  .detail-table { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>库巴扎运营部 · 区域数据拆分报告</h1>
+    <div class="subtitle">按区域统计线上流量、系统总金额、线上率（25H1 / 25全年 / 26H1）</div>
+    <div class="meta">数据来源：2026年1-6月份数据分汇总.xlsx · 区域划分参照运营部人员构架及钉钉区域 · 生成日期：2026-07-30</div>
+  </div>
+
+  <!-- Summary Table -->
+  <div class="card">
+    <div class="card-title">一、区域汇总总览</div>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th rowspan="2">区域</th>
+          <th colspan="3">25年H1（1-6月）</th>
+          <th colspan="3">25年全年（1-12月）</th>
+          <th colspan="3">26年H1（1-6月）</th>
+          <th rowspan="2">26H1线上<br>同比</th>
+          <th rowspan="2">项目数</th>
+        </tr>
+        <tr>
+          <th>线上流量</th><th>系统总金额</th><th>线上率</th>
+          <th>线上流量</th><th>系统总金额</th><th>线上率</th>
+          <th>线上流量</th><th>系统总金额</th><th>线上率</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="region-name r-jzh">江浙沪</td>
+          <td>11,962万</td>
+          <td>40,976万</td>
+          <td class="rate-low">29.2%</td>
+          <td>30,167万</td>
+          <td>95,086万</td>
+          <td class="rate-low">31.7%</td>
+          <td><strong>23,548万</strong></td>
+          <td>86,575万</td>
+          <td class="rate-low">27.2%</td>
+          <td>+96.9%</td>
+          <td>21</td>
+        </tr>
+        <tr>
+          <td class="region-name r-bj">北京</td>
+          <td>26,190万</td>
+          <td>36,675万</td>
+          <td class="rate-high">71.4%</td>
+          <td>58,117万</td>
+          <td>94,838万</td>
+          <td class="rate-mid">61.3%</td>
+          <td><strong>25,983万</strong></td>
+          <td>57,922万</td>
+          <td class="rate-mid">44.9%</td>
+          <td>-0.8%</td>
+          <td>22</td>
+        </tr>
+        <tr>
+          <td class="region-name r-dbxb">东北西北</td>
+          <td>5,447万</td>
+          <td>5,902万</td>
+          <td class="rate-high">92.3%</td>
+          <td>14,467万</td>
+          <td>16,331万</td>
+          <td class="rate-high">88.6%</td>
+          <td><strong>9,100万</strong></td>
+          <td>12,957万</td>
+          <td class="rate-high">70.2%</td>
+          <td>+67.1%</td>
+          <td>18</td>
+        </tr>
+        <tr>
+          <td class="region-name r-tj">天津</td>
+          <td>5,254万</td>
+          <td>8,868万</td>
+          <td class="rate-mid">59.2%</td>
+          <td>14,435万</td>
+          <td>24,637万</td>
+          <td class="rate-mid">58.6%</td>
+          <td><strong>8,251万</strong></td>
+          <td>14,208万</td>
+          <td class="rate-mid">58.1%</td>
+          <td>+57.0%</td>
+          <td>11</td>
+        </tr>
+        <tr>
+          <td class="region-name r-gdfj">广东福建</td>
+          <td>5,342万</td>
+          <td>8,378万</td>
+          <td class="rate-mid">63.8%</td>
+          <td>13,731万</td>
+          <td>20,026万</td>
+          <td class="rate-mid">68.6%</td>
+          <td><strong>7,294万</strong></td>
+          <td>9,753万</td>
+          <td class="rate-high">74.8%</td>
+          <td>+36.5%</td>
+          <td>13</td>
+        </tr>
+        <tr>
+          <td class="region-name r-xn">西南海南湖北</td>
+          <td>2,957万</td>
+          <td>5,456万</td>
+          <td class="rate-mid">54.2%</td>
+          <td>6,693万</td>
+          <td>17,341万</td>
+          <td class="rate-low">38.6%</td>
+          <td><strong>3,791万</strong></td>
+          <td>9,028万</td>
+          <td class="rate-mid">42.0%</td>
+          <td>+28.2%</td>
+          <td>13</td>
+        </tr>
+        <tr class="total-row">
+          <td class="region-name">合计</td>
+          <td>57,152万</td>
+          <td>106,255万</td>
+          <td>53.8%</td>
+          <td>137,610万</td>
+          <td>268,259万</td>
+          <td>51.3%</td>
+          <td>77,966万</td>
+          <td>190,443万</td>
+          <td>40.9%</td>
+          <td>+36.4%</td>
+          <td>98</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:12px; font-size:12px; color:#888;">
+      说明：线上率 = 线上流量 ÷ 系统总金额 × 100%。系统总金额即全平台总金额（含线上+线下）。25年H1系统总金额由月度数据加总计算。
+    </div>
+  </div>
+
+  <!-- Key Insights -->
+  <div class="card">
+    <div class="card-title">二、关键发现</div>
+    <div class="insight"><strong>线上率最低区域：</strong>江浙沪 27.2%，主要受浙大（20%）、东南大学（3%）拖累。这两个项目系统总金额合计5.78亿，但线上仅1.30亿。</div>
+    <div class="insight"><strong>线上率最高区域：</strong>广东福建 74.8%，福建医科、福建省妇幼等老系统项目线上率近100%。</div>
+    <div class="insight"><strong>线上率下降最快：</strong>北京从25H1的71.4%降至26H1的44.9%，主要因中国农大系统总金额暴增（0.04亿→1.50亿）但线上率仅0.9%，以及北大系统总金额从0.94亿增至2.05亿但线上率从87.7%降至40.3%。</div>
+    <div class="insight"><strong>线上流量增长最快：</strong>江浙沪同比+96.9%（1.20亿→2.35亿），主要靠浙大新系统上线贡献0.85亿增量。</div>
+    <div class="insight"><strong>线上流量下降区域：</strong>北京同比-0.8%（2.62亿→2.60亿），是唯一负增长区域，清华-19.1%、上交医-19.5%头部流失明显。</div>
+    <div class="insight"><strong>全平台线上率：</strong>从25H1的53.8%降至26H1的40.9%，下降12.9个百分点。主要原因是新项目系统总金额大但线上转化低（如浙大4.27亿总额仅20%线上率、中农1.50亿总额仅0.9%线上率）。</div>
+  </div>
+
+  <!-- Detail Tables -->
+  <div class="card">
+    <div class="card-title">三、各区域项目明细</div>
+    <div class="region-section">
+      <div class="region-header">
+        <h3 class="r-jzh">江浙沪</h3>
+        <span class="badge">21个项目 · 26H1线上 23,548万 · 线上率 27.2%</span>
+      </div>
+      <table class="detail-table">
+        <thead>
+          <tr>
+            <th>项目名称</th>
+            <th>25H1线上(万)</th>
+            <th>25H1总额(万)</th>
+            <th>25H1线上率</th>
+            <th>25全年线上(万)</th>
+            <th>25全年总额(万)</th>
+            <th>25全年线上率</th>
+            <th>26H1线上(万)</th>
+            <th>26H1总额(万)</th>
+            <th>26H1线上率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>浙江大学</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">8,533</td>
+            <td class="">42,738</td>
+            <td class="rate-low">20.0%</td>
+          </tr>
+          <tr>
+            <td>苏州大学</td>
+            <td class="">3,556</td>
+            <td class="">9,841</td>
+            <td class="rate-low">36.1%</td>
+            <td class="">9,779</td>
+            <td class="">25,971</td>
+            <td class="rate-low">37.7%</td>
+            <td class="">3,806</td>
+            <td class="">9,604</td>
+            <td class="rate-low">39.6%</td>
+          </tr>
+          <tr>
+            <td>南京农业大学</td>
+            <td class="">2,751</td>
+            <td class="">3,274</td>
+            <td class="rate-high">84.0%</td>
+            <td class="">6,281</td>
+            <td class="">7,427</td>
+            <td class="rate-high">84.6%</td>
+            <td class="">3,109</td>
+            <td class="">3,729</td>
+            <td class="rate-high">83.4%</td>
+          </tr>
+          <tr>
+            <td>南京工业大学</td>
+            <td class="">965</td>
+            <td class="">3,835</td>
+            <td class="rate-low">25.2%</td>
+            <td class="">2,591</td>
+            <td class="">9,016</td>
+            <td class="rate-low">28.7%</td>
+            <td class="">1,420</td>
+            <td class="">3,830</td>
+            <td class="rate-low">37.1%</td>
+          </tr>
+          <tr>
+            <td>徐州医科大学(新)</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">7</td>
+            <td class="">9</td>
+            <td class="rate-high">80.5%</td>
+            <td class="">1,381</td>
+            <td class="">1,423</td>
+            <td class="rate-high">97.0%</td>
+          </tr>
+          <tr>
+            <td>上海交通大学医学院</td>
+            <td class="">1,667</td>
+            <td class="">2,718</td>
+            <td class="rate-mid">61.3%</td>
+            <td class="">3,978</td>
+            <td class="">8,027</td>
+            <td class="rate-mid">49.6%</td>
+            <td class="">1,343</td>
+            <td class="">2,833</td>
+            <td class="rate-mid">47.4%</td>
+          </tr>
+          <tr>
+            <td>江南大学</td>
+            <td class="">1,134</td>
+            <td class="">1,160</td>
+            <td class="rate-high">97.7%</td>
+            <td class="">2,014</td>
+            <td class="">2,062</td>
+            <td class="rate-high">97.7%</td>
+            <td class="">1,037</td>
+            <td class="">1,059</td>
+            <td class="rate-high">97.9%</td>
+          </tr>
+          <tr>
+            <td>南京中医药大学（实验材料）</td>
+            <td class="">469</td>
+            <td class="">1,536</td>
+            <td class="rate-low">30.5%</td>
+            <td class="">2,135</td>
+            <td class="">5,975</td>
+            <td class="rate-low">35.7%</td>
+            <td class="">891</td>
+            <td class="">2,316</td>
+            <td class="rate-low">38.5%</td>
+          </tr>
+          <tr>
+            <td>华东师范大学</td>
+            <td class="">378</td>
+            <td class="">378</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">976</td>
+            <td class="">976</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">566</td>
+            <td class="">566</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>同济大学</td>
+            <td class="">205</td>
+            <td class="">205</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">521</td>
+            <td class="">521</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">486</td>
+            <td class="">1,820</td>
+            <td class="rate-low">26.7%</td>
+          </tr>
+          <tr>
+            <td>东南大学（老系统）</td>
+            <td class="">453</td>
+            <td class="">17,148</td>
+            <td class="rate-low">2.6%</td>
+            <td class="">856</td>
+            <td class="">32,962</td>
+            <td class="rate-low">2.6%</td>
+            <td class="">448</td>
+            <td class="">15,127</td>
+            <td class="rate-low">3.0%</td>
+          </tr>
+          <tr>
+            <td>江苏师范大学（全年数据）</td>
+            <td class="">27</td>
+            <td class="">138</td>
+            <td class="rate-low">19.4%</td>
+            <td class="">27</td>
+            <td class="">138</td>
+            <td class="rate-low">19.4%</td>
+            <td class="">180</td>
+            <td class="">784</td>
+            <td class="rate-low">23.0%</td>
+          </tr>
+          <tr>
+            <td>浙江师范大学（T6）</td>
+            <td class="">143</td>
+            <td class="">359</td>
+            <td class="rate-low">39.9%</td>
+            <td class="">364</td>
+            <td class="">912</td>
+            <td class="rate-low">40.0%</td>
+            <td class="">179</td>
+            <td class="">442</td>
+            <td class="rate-mid">40.4%</td>
+          </tr>
+          <tr>
+            <td>温州大学</td>
+            <td class="">146</td>
+            <td class="">293</td>
+            <td class="rate-mid">49.9%</td>
+            <td class="">367</td>
+            <td class="">766</td>
+            <td class="rate-mid">47.8%</td>
+            <td class="">91</td>
+            <td class="">218</td>
+            <td class="rate-mid">42.0%</td>
+          </tr>
+          <tr>
+            <td>南京中医药大学(办公耗材)</td>
+            <td class="">49</td>
+            <td class="">65</td>
+            <td class="rate-high">75.9%</td>
+            <td class="">239</td>
+            <td class="">283</td>
+            <td class="rate-high">84.6%</td>
+            <td class="">64</td>
+            <td class="">71</td>
+            <td class="rate-high">90.8%</td>
+          </tr>
+          <tr>
+            <td>南京中医药大学(管制品气体)</td>
+            <td class="">3</td>
+            <td class="">4</td>
+            <td class="rate-high">72.0%</td>
+            <td class="">14</td>
+            <td class="">20</td>
+            <td class="rate-mid">68.6%</td>
+            <td class="">6</td>
+            <td class="">7</td>
+            <td class="rate-high">99.8%</td>
+          </tr>
+          <tr>
+            <td>南京航空航天大学</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">1</td>
+            <td class="">1</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">4</td>
+            <td class="">4</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>之江实验室（全年数据）</td>
+            <td class="">16</td>
+            <td class="">16</td>
+            <td class="rate-high">99.8%</td>
+            <td class="">16</td>
+            <td class="">16</td>
+            <td class="rate-high">99.8%</td>
+            <td class="">4</td>
+            <td class="">4</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>浙江大学国际健康医学研究院</td>
+            <td class="">0</td>
+            <td class="">6</td>
+            <td class="rate-low">3.6%</td>
+            <td class="">0</td>
+            <td class="">6</td>
+            <td class="rate-low">3.6%</td>
+            <td class="">0</td>
+            <td class="">0</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>上海应用技术大学（未正式用）</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+          </tr>
+          <tr>
+            <td>东南大学无锡校区</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+          </tr>
+          <tr class="sub-total">
+            <td>江浙沪 小计</td>
+            <td>11,962</td>
+            <td>40,976</td>
+            <td>29.2%</td>
+            <td>30,167</td>
+            <td>95,086</td>
+            <td>31.7%</td>
+            <td>23,548</td>
+            <td>86,575</td>
+            <td>27.2%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="region-section">
+      <div class="region-header">
+        <h3 class="r-bj">北京</h3>
+        <span class="badge">22个项目 · 26H1线上 25,983万 · 线上率 44.9%</span>
+      </div>
+      <table class="detail-table">
+        <thead>
+          <tr>
+            <th>项目名称</th>
+            <th>25H1线上(万)</th>
+            <th>25H1总额(万)</th>
+            <th>25H1线上率</th>
+            <th>25全年线上(万)</th>
+            <th>25全年总额(万)</th>
+            <th>25全年线上率</th>
+            <th>26H1线上(万)</th>
+            <th>26H1总额(万)</th>
+            <th>26H1线上率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>北京大学</td>
+            <td class="">8,266</td>
+            <td class="">9,427</td>
+            <td class="rate-high">87.7%</td>
+            <td class="">16,888</td>
+            <td class="">19,598</td>
+            <td class="rate-high">86.2%</td>
+            <td class="">8,267</td>
+            <td class="">20,514</td>
+            <td class="rate-mid">40.3%</td>
+          </tr>
+          <tr>
+            <td>北京大学医学部</td>
+            <td class="">5,926</td>
+            <td class="">6,727</td>
+            <td class="rate-high">88.1%</td>
+            <td class="">13,585</td>
+            <td class="">15,737</td>
+            <td class="rate-high">86.3%</td>
+            <td class="">6,630</td>
+            <td class="">7,608</td>
+            <td class="rate-high">87.1%</td>
+          </tr>
+          <tr>
+            <td>清华大学</td>
+            <td class="">4,705</td>
+            <td class="">9,043</td>
+            <td class="rate-mid">52.0%</td>
+            <td class="">9,605</td>
+            <td class="">13,942</td>
+            <td class="rate-mid">68.9%</td>
+            <td class="">3,805</td>
+            <td class="">3,805</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>北京中医药大学</td>
+            <td class="">2,612</td>
+            <td class="">3,165</td>
+            <td class="rate-high">82.5%</td>
+            <td class="">6,309</td>
+            <td class="">7,536</td>
+            <td class="rate-high">83.7%</td>
+            <td class="">2,477</td>
+            <td class="">2,939</td>
+            <td class="rate-high">84.3%</td>
+          </tr>
+          <tr>
+            <td>中国医学科学院药物所</td>
+            <td class="">1,968</td>
+            <td class="">2,603</td>
+            <td class="rate-high">75.6%</td>
+            <td class="">5,518</td>
+            <td class="">7,372</td>
+            <td class="rate-high">74.8%</td>
+            <td class="">1,922</td>
+            <td class="">2,431</td>
+            <td class="rate-high">79.0%</td>
+          </tr>
+          <tr>
+            <td>北京化工大学</td>
+            <td class="">795</td>
+            <td class="">3,100</td>
+            <td class="rate-low">25.6%</td>
+            <td class="">1,621</td>
+            <td class="">7,055</td>
+            <td class="rate-low">23.0%</td>
+            <td class="">847</td>
+            <td class="">2,932</td>
+            <td class="rate-low">28.9%</td>
+          </tr>
+          <tr>
+            <td>北京科技大学</td>
+            <td class="">535</td>
+            <td class="">715</td>
+            <td class="rate-high">74.9%</td>
+            <td class="">1,091</td>
+            <td class="">1,659</td>
+            <td class="rate-mid">65.8%</td>
+            <td class="">445</td>
+            <td class="">635</td>
+            <td class="rate-high">70.1%</td>
+          </tr>
+          <tr>
+            <td>北京工业大学旧（老系统）</td>
+            <td class="">549</td>
+            <td class="">717</td>
+            <td class="rate-high">76.5%</td>
+            <td class="">1,117</td>
+            <td class="">1,415</td>
+            <td class="rate-high">79.0%</td>
+            <td class="">430</td>
+            <td class="">559</td>
+            <td class="rate-high">77.0%</td>
+          </tr>
+          <tr>
+            <td>中国环境科学研究院</td>
+            <td class="">324</td>
+            <td class="">413</td>
+            <td class="rate-high">78.6%</td>
+            <td class="">904</td>
+            <td class="">1,164</td>
+            <td class="rate-high">77.7%</td>
+            <td class="">328</td>
+            <td class="">507</td>
+            <td class="rate-mid">64.7%</td>
+          </tr>
+          <tr>
+            <td>中国中医科学院眼科医院</td>
+            <td class="">93</td>
+            <td class="">93</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">315</td>
+            <td class="">317</td>
+            <td class="rate-high">99.5%</td>
+            <td class="">160</td>
+            <td class="">160</td>
+            <td class="rate-high">99.8%</td>
+          </tr>
+          <tr>
+            <td>中国农业大学</td>
+            <td class="">16</td>
+            <td class="">39</td>
+            <td class="rate-mid">40.5%</td>
+            <td class="">285</td>
+            <td class="">17,640</td>
+            <td class="rate-low">1.6%</td>
+            <td class="">136</td>
+            <td class="">14,952</td>
+            <td class="rate-low">0.9%</td>
+          </tr>
+          <tr>
+            <td>北京林业大学</td>
+            <td class="">141</td>
+            <td class="">145</td>
+            <td class="rate-high">97.3%</td>
+            <td class="">263</td>
+            <td class="">267</td>
+            <td class="rate-high">98.5%</td>
+            <td class="">130</td>
+            <td class="">131</td>
+            <td class="rate-high">99.8%</td>
+          </tr>
+          <tr>
+            <td>北京大学成都前沿交叉生物技术研究院</td>
+            <td class="">66</td>
+            <td class="">118</td>
+            <td class="rate-mid">56.0%</td>
+            <td class="">233</td>
+            <td class="">285</td>
+            <td class="rate-high">81.9%</td>
+            <td class="">129</td>
+            <td class="">129</td>
+            <td class="rate-high">99.8%</td>
+          </tr>
+          <tr>
+            <td>北京工商大学（新）</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">90</td>
+            <td class="">212</td>
+            <td class="rate-mid">42.6%</td>
+          </tr>
+          <tr>
+            <td>北京石油化工学院旧（老系统）</td>
+            <td class="">56</td>
+            <td class="">167</td>
+            <td class="rate-low">33.5%</td>
+            <td class="">121</td>
+            <td class="">353</td>
+            <td class="rate-low">34.2%</td>
+            <td class="">65</td>
+            <td class="">180</td>
+            <td class="rate-low">35.9%</td>
+          </tr>
+          <tr>
+            <td>中国矿业大学（北京）</td>
+            <td class="">40</td>
+            <td class="">73</td>
+            <td class="rate-mid">54.4%</td>
+            <td class="">86</td>
+            <td class="">187</td>
+            <td class="rate-mid">45.8%</td>
+            <td class="">44</td>
+            <td class="">104</td>
+            <td class="rate-mid">42.6%</td>
+          </tr>
+          <tr>
+            <td>中国人民大学</td>
+            <td class="">39</td>
+            <td class="">54</td>
+            <td class="rate-high">72.5%</td>
+            <td class="">70</td>
+            <td class="">176</td>
+            <td class="rate-low">40.0%</td>
+            <td class="">41</td>
+            <td class="">78</td>
+            <td class="rate-mid">52.9%</td>
+          </tr>
+          <tr>
+            <td>北京理工大学旧（老系统）</td>
+            <td class="">55</td>
+            <td class="">55</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">95</td>
+            <td class="">95</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">19</td>
+            <td class="">19</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>中国人民大学（新）</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">1</td>
+            <td class="">1</td>
+            <td class="rate-high">95.7%</td>
+            <td class="">9</td>
+            <td class="">9</td>
+            <td class="rate-high">99.3%</td>
+          </tr>
+          <tr>
+            <td>北京交通大学</td>
+            <td class="">5</td>
+            <td class="">5</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">11</td>
+            <td class="">11</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">5</td>
+            <td class="">5</td>
+            <td class="rate-high">88.3%</td>
+          </tr>
+          <tr>
+            <td>北京师范大学</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">4</td>
+            <td class="">6</td>
+            <td class="rate-high">70.9%</td>
+          </tr>
+          <tr>
+            <td>北京邮电大学</td>
+            <td class="">0</td>
+            <td class="">16</td>
+            <td class="rate-low">0.2%</td>
+            <td class="">0</td>
+            <td class="">29</td>
+            <td class="rate-low">0.1%</td>
+            <td class="">0</td>
+            <td class="">8</td>
+            <td class="rate-low">0.3%</td>
+          </tr>
+          <tr class="sub-total">
+            <td>北京 小计</td>
+            <td>26,190</td>
+            <td>36,675</td>
+            <td>71.4%</td>
+            <td>58,117</td>
+            <td>94,838</td>
+            <td>61.3%</td>
+            <td>25,983</td>
+            <td>57,922</td>
+            <td>44.9%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="region-section">
+      <div class="region-header">
+        <h3 class="r-dbxb">东北西北</h3>
+        <span class="badge">18个项目 · 26H1线上 9,100万 · 线上率 70.2%</span>
+      </div>
+      <table class="detail-table">
+        <thead>
+          <tr>
+            <th>项目名称</th>
+            <th>25H1线上(万)</th>
+            <th>25H1总额(万)</th>
+            <th>25H1线上率</th>
+            <th>25全年线上(万)</th>
+            <th>25全年总额(万)</th>
+            <th>25全年线上率</th>
+            <th>26H1线上(万)</th>
+            <th>26H1总额(万)</th>
+            <th>26H1线上率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>中国医科大学（库巴扎老系统）</td>
+            <td class="">1,808</td>
+            <td class="">1,808</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">5,366</td>
+            <td class="">5,366</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">2,648</td>
+            <td class="">2,648</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>中国医科大学附属第一医院</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">564</td>
+            <td class="">564</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">2,454</td>
+            <td class="">2,454</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>西安交通大学</td>
+            <td class="">1,922</td>
+            <td class="">1,922</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">4,635</td>
+            <td class="">4,635</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">2,133</td>
+            <td class="">2,133</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>大连理工大学（新）</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">560</td>
+            <td class="">1,088</td>
+            <td class="rate-mid">51.5%</td>
+            <td class="">920</td>
+            <td class="">1,249</td>
+            <td class="rate-high">73.7%</td>
+          </tr>
+          <tr>
+            <td>西北工业大学</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">13</td>
+            <td class="">22</td>
+            <td class="rate-mid">58.6%</td>
+            <td class="">332</td>
+            <td class="">474</td>
+            <td class="rate-high">70.0%</td>
+          </tr>
+          <tr>
+            <td>中国医科大学(新)</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">162</td>
+            <td class="">162</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>哈尔滨师范大学</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">136</td>
+            <td class="">151</td>
+            <td class="rate-high">89.8%</td>
+          </tr>
+          <tr>
+            <td>西北工业大学旧（老系统）</td>
+            <td class="">513</td>
+            <td class="">763</td>
+            <td class="rate-mid">67.3%</td>
+            <td class="">1,252</td>
+            <td class="">2,042</td>
+            <td class="rate-mid">61.3%</td>
+            <td class="">99</td>
+            <td class="">193</td>
+            <td class="rate-mid">51.3%</td>
+          </tr>
+          <tr>
+            <td>西安建筑科技大学（老系统）</td>
+            <td class="">58</td>
+            <td class="">58</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">136</td>
+            <td class="">137</td>
+            <td class="rate-high">99.9%</td>
+            <td class="">73</td>
+            <td class="">73</td>
+            <td class="rate-high">99.9%</td>
+          </tr>
+          <tr>
+            <td>东北大学材料</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">69</td>
+            <td class="">3,199</td>
+            <td class="rate-low">2.1%</td>
+          </tr>
+          <tr>
+            <td>西安电子科技大学</td>
+            <td class="">31</td>
+            <td class="">33</td>
+            <td class="rate-high">91.8%</td>
+            <td class="">84</td>
+            <td class="">88</td>
+            <td class="rate-high">95.3%</td>
+            <td class="">49</td>
+            <td class="">52</td>
+            <td class="rate-high">94.5%</td>
+          </tr>
+          <tr>
+            <td>陕西科技大学</td>
+            <td class="">12</td>
+            <td class="">12</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">22</td>
+            <td class="">22</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">14</td>
+            <td class="">14</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>哈尔滨工业大学</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">0</td>
+            <td class="">0</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">8</td>
+            <td class="">7</td>
+            <td class="rate-high">118.8%</td>
+          </tr>
+          <tr>
+            <td>青海民族大学</td>
+            <td class="">6</td>
+            <td class="">6</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">16</td>
+            <td class="">16</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">4</td>
+            <td class="">4</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>宁夏大学</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">0</td>
+            <td class="">77</td>
+            <td class="rate-low">0.2%</td>
+            <td class="">1</td>
+            <td class="">115</td>
+            <td class="rate-low">0.5%</td>
+          </tr>
+          <tr>
+            <td>东北大学旧（化学品老系统）</td>
+            <td class="">0</td>
+            <td class="">13</td>
+            <td class="rate-low">1.1%</td>
+            <td class="">1</td>
+            <td class="">27</td>
+            <td class="rate-low">4.5%</td>
+            <td class="">0</td>
+            <td class="">31</td>
+            <td class="rate-low">0.5%</td>
+          </tr>
+          <tr>
+            <td>大连理工大学（旧）</td>
+            <td class="">1,095</td>
+            <td class="">1,286</td>
+            <td class="rate-high">85.2%</td>
+            <td class="">1,816</td>
+            <td class="">2,247</td>
+            <td class="rate-high">80.8%</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+          </tr>
+          <tr>
+            <td>哈尔滨工程大学（新）</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+          </tr>
+          <tr class="sub-total">
+            <td>东北西北 小计</td>
+            <td>5,447</td>
+            <td>5,902</td>
+            <td>92.3%</td>
+            <td>14,467</td>
+            <td>16,331</td>
+            <td>88.6%</td>
+            <td>9,100</td>
+            <td>12,957</td>
+            <td>70.2%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="region-section">
+      <div class="region-header">
+        <h3 class="r-tj">天津</h3>
+        <span class="badge">11个项目 · 26H1线上 8,251万 · 线上率 58.1%</span>
+      </div>
+      <table class="detail-table">
+        <thead>
+          <tr>
+            <th>项目名称</th>
+            <th>25H1线上(万)</th>
+            <th>25H1总额(万)</th>
+            <th>25H1线上率</th>
+            <th>25全年线上(万)</th>
+            <th>25全年总额(万)</th>
+            <th>25全年线上率</th>
+            <th>26H1线上(万)</th>
+            <th>26H1总额(万)</th>
+            <th>26H1线上率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>南开大学</td>
+            <td class="">2,853</td>
+            <td class="">5,870</td>
+            <td class="rate-mid">48.6%</td>
+            <td class="">7,656</td>
+            <td class="">16,600</td>
+            <td class="rate-mid">46.1%</td>
+            <td class="">4,604</td>
+            <td class="">9,599</td>
+            <td class="rate-mid">48.0%</td>
+          </tr>
+          <tr>
+            <td>天津医科大学</td>
+            <td class="">2,143</td>
+            <td class="">2,168</td>
+            <td class="rate-high">98.9%</td>
+            <td class="">6,117</td>
+            <td class="">6,185</td>
+            <td class="rate-high">98.9%</td>
+            <td class="">2,115</td>
+            <td class="">2,142</td>
+            <td class="rate-high">98.7%</td>
+          </tr>
+          <tr>
+            <td>天津中医药大学（新）</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">530</td>
+            <td class="">530</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>天津大学（化学品）新</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">470</td>
+            <td class="">821</td>
+            <td class="rate-mid">57.2%</td>
+          </tr>
+          <tr>
+            <td>河北工业大学</td>
+            <td class="">157</td>
+            <td class="">434</td>
+            <td class="rate-low">36.2%</td>
+            <td class="">335</td>
+            <td class="">866</td>
+            <td class="rate-low">38.6%</td>
+            <td class="">160</td>
+            <td class="">441</td>
+            <td class="rate-low">36.3%</td>
+          </tr>
+          <tr>
+            <td>天津工业大学</td>
+            <td class="">63</td>
+            <td class="">72</td>
+            <td class="rate-high">87.1%</td>
+            <td class="">238</td>
+            <td class="">275</td>
+            <td class="rate-high">86.4%</td>
+            <td class="">153</td>
+            <td class="">225</td>
+            <td class="rate-mid">68.3%</td>
+          </tr>
+          <tr>
+            <td>天津市人民医院</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">4</td>
+            <td class="">4</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">151</td>
+            <td class="">151</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>天津理工大学</td>
+            <td class="">18</td>
+            <td class="">283</td>
+            <td class="rate-low">6.3%</td>
+            <td class="">44</td>
+            <td class="">626</td>
+            <td class="rate-low">7.0%</td>
+            <td class="">33</td>
+            <td class="">253</td>
+            <td class="rate-low">13.0%</td>
+          </tr>
+          <tr>
+            <td>燕山大学（老系统）</td>
+            <td class="">21</td>
+            <td class="">41</td>
+            <td class="rate-mid">50.9%</td>
+            <td class="">41</td>
+            <td class="">80</td>
+            <td class="rate-mid">51.6%</td>
+            <td class="">19</td>
+            <td class="">32</td>
+            <td class="rate-mid">60.7%</td>
+          </tr>
+          <tr>
+            <td>天津市第三中心医院（26.5上线）</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">15</td>
+            <td class="">15</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>天津市中心妇产医院（上线中）</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+          </tr>
+          <tr class="sub-total">
+            <td>天津 小计</td>
+            <td>5,254</td>
+            <td>8,868</td>
+            <td>59.2%</td>
+            <td>14,435</td>
+            <td>24,637</td>
+            <td>58.6%</td>
+            <td>8,251</td>
+            <td>14,208</td>
+            <td>58.1%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="region-section">
+      <div class="region-header">
+        <h3 class="r-gdfj">广东福建</h3>
+        <span class="badge">13个项目 · 26H1线上 7,294万 · 线上率 74.8%</span>
+      </div>
+      <table class="detail-table">
+        <thead>
+          <tr>
+            <th>项目名称</th>
+            <th>25H1线上(万)</th>
+            <th>25H1总额(万)</th>
+            <th>25H1线上率</th>
+            <th>25全年线上(万)</th>
+            <th>25全年总额(万)</th>
+            <th>25全年线上率</th>
+            <th>26H1线上(万)</th>
+            <th>26H1总额(万)</th>
+            <th>26H1线上率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>福建医科大学（老系统）</td>
+            <td class="">2,049</td>
+            <td class="">2,049</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">4,797</td>
+            <td class="">4,797</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">2,815</td>
+            <td class="">2,815</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>福建中医药大学（老系统）</td>
+            <td class="">1,424</td>
+            <td class="">1,625</td>
+            <td class="rate-high">87.6%</td>
+            <td class="">3,248</td>
+            <td class="">3,694</td>
+            <td class="rate-high">87.9%</td>
+            <td class="">1,248</td>
+            <td class="">1,501</td>
+            <td class="rate-high">83.2%</td>
+          </tr>
+          <tr>
+            <td>广州大学</td>
+            <td class="">805</td>
+            <td class="">2,649</td>
+            <td class="rate-low">30.4%</td>
+            <td class="">1,813</td>
+            <td class="">5,638</td>
+            <td class="rate-low">32.2%</td>
+            <td class="">960</td>
+            <td class="">2,553</td>
+            <td class="rate-low">37.6%</td>
+          </tr>
+          <tr>
+            <td>福建省妇幼保健院试剂采购平台</td>
+            <td class="">570</td>
+            <td class="">570</td>
+            <td class="rate-high">99.9%</td>
+            <td class="">1,702</td>
+            <td class="">1,704</td>
+            <td class="rate-high">99.9%</td>
+            <td class="">959</td>
+            <td class="">959</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>广州中医药大学</td>
+            <td class="">431</td>
+            <td class="">777</td>
+            <td class="rate-mid">55.4%</td>
+            <td class="">1,632</td>
+            <td class="">2,467</td>
+            <td class="rate-mid">66.2%</td>
+            <td class="">566</td>
+            <td class="">783</td>
+            <td class="rate-high">72.3%</td>
+          </tr>
+          <tr>
+            <td>深圳技术大学</td>
+            <td class="">45</td>
+            <td class="">476</td>
+            <td class="rate-low">9.4%</td>
+            <td class="">197</td>
+            <td class="">926</td>
+            <td class="rate-low">21.3%</td>
+            <td class="">275</td>
+            <td class="">288</td>
+            <td class="rate-high">95.4%</td>
+          </tr>
+          <tr>
+            <td>柳州市人民医院</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">302</td>
+            <td class="">302</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">223</td>
+            <td class="">223</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>华南理工大学</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">1</td>
+            <td class="">1</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">208</td>
+            <td class="">208</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>南方医科大学（新）</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">16</td>
+            <td class="">17</td>
+            <td class="rate-high">98.9%</td>
+          </tr>
+          <tr>
+            <td>福建师范大学（老系统）</td>
+            <td class="">2</td>
+            <td class="">213</td>
+            <td class="rate-low">0.9%</td>
+            <td class="">3</td>
+            <td class="">466</td>
+            <td class="rate-low">0.6%</td>
+            <td class="">15</td>
+            <td class="">279</td>
+            <td class="rate-low">5.3%</td>
+          </tr>
+          <tr>
+            <td>南方医科大学</td>
+            <td class="">17</td>
+            <td class="">17</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">35</td>
+            <td class="">30</td>
+            <td class="rate-high">115.9%</td>
+            <td class="">6</td>
+            <td class="">6</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>深圳北理莫斯科大学</td>
+            <td class="">0</td>
+            <td class="">0</td>
+            <td class="rate-high">175.0%</td>
+            <td class="">1</td>
+            <td class="">2</td>
+            <td class="rate-mid">60.0%</td>
+            <td class="">4</td>
+            <td class="">123</td>
+            <td class="rate-low">3.0%</td>
+          </tr>
+          <tr>
+            <td>福耀科技大学</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+          </tr>
+          <tr class="sub-total">
+            <td>广东福建 小计</td>
+            <td>5,342</td>
+            <td>8,378</td>
+            <td>63.8%</td>
+            <td>13,731</td>
+            <td>20,026</td>
+            <td>68.6%</td>
+            <td>7,294</td>
+            <td>9,753</td>
+            <td>74.8%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="region-section">
+      <div class="region-header">
+        <h3 class="r-xn">西南海南湖北</h3>
+        <span class="badge">13个项目 · 26H1线上 3,791万 · 线上率 42.0%</span>
+      </div>
+      <table class="detail-table">
+        <thead>
+          <tr>
+            <th>项目名称</th>
+            <th>25H1线上(万)</th>
+            <th>25H1总额(万)</th>
+            <th>25H1线上率</th>
+            <th>25全年线上(万)</th>
+            <th>25全年总额(万)</th>
+            <th>25全年线上率</th>
+            <th>26H1线上(万)</th>
+            <th>26H1总额(万)</th>
+            <th>26H1线上率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>海南大学</td>
+            <td class="">1,872</td>
+            <td class="">3,024</td>
+            <td class="rate-mid">61.9%</td>
+            <td class="">3,952</td>
+            <td class="">9,419</td>
+            <td class="rate-mid">42.0%</td>
+            <td class="">1,970</td>
+            <td class="">5,205</td>
+            <td class="rate-low">37.8%</td>
+          </tr>
+          <tr>
+            <td>华中科技大学</td>
+            <td class="">155</td>
+            <td class="">762</td>
+            <td class="rate-low">20.3%</td>
+            <td class="">630</td>
+            <td class="">4,453</td>
+            <td class="rate-low">14.1%</td>
+            <td class="">801</td>
+            <td class="">2,225</td>
+            <td class="rate-low">36.0%</td>
+          </tr>
+          <tr>
+            <td>四川大学</td>
+            <td class="">318</td>
+            <td class="">365</td>
+            <td class="rate-high">87.3%</td>
+            <td class="">841</td>
+            <td class="">912</td>
+            <td class="rate-high">92.2%</td>
+            <td class="">439</td>
+            <td class="">447</td>
+            <td class="rate-high">98.1%</td>
+          </tr>
+          <tr>
+            <td>重庆大学</td>
+            <td class="">454</td>
+            <td class="">959</td>
+            <td class="rate-mid">47.3%</td>
+            <td class="">911</td>
+            <td class="">1,867</td>
+            <td class="rate-mid">48.8%</td>
+            <td class="">386</td>
+            <td class="">694</td>
+            <td class="rate-mid">55.6%</td>
+          </tr>
+          <tr>
+            <td>湖南大学（老系统）</td>
+            <td class="">146</td>
+            <td class="">161</td>
+            <td class="rate-high">90.6%</td>
+            <td class="">330</td>
+            <td class="">365</td>
+            <td class="rate-high">90.3%</td>
+            <td class="">172</td>
+            <td class="">403</td>
+            <td class="rate-mid">42.5%</td>
+          </tr>
+          <tr>
+            <td>昆明理工大学</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">1</td>
+            <td class="">1</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">9</td>
+            <td class="">9</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>西南交通大学</td>
+            <td class="">4</td>
+            <td class="">4</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">8</td>
+            <td class="">8</td>
+            <td class="rate-high">100.0%</td>
+            <td class="">7</td>
+            <td class="">7</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>成都理工大学（老系统）</td>
+            <td class="">6</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">14</td>
+            <td class="">0</td>
+            <td class="rate-high">33103.2%</td>
+            <td class="">5</td>
+            <td class="">1</td>
+            <td class="rate-high">973.9%</td>
+          </tr>
+          <tr>
+            <td>西南民族大学</td>
+            <td class="">3</td>
+            <td class="">161</td>
+            <td class="rate-low">1.7%</td>
+            <td class="">6</td>
+            <td class="">268</td>
+            <td class="rate-low">2.3%</td>
+            <td class="">3</td>
+            <td class="">19</td>
+            <td class="rate-low">17.9%</td>
+          </tr>
+          <tr>
+            <td>重庆医科大学</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="">1</td>
+            <td class="">1</td>
+            <td class="rate-high">100.0%</td>
+          </tr>
+          <tr>
+            <td>重庆大学（新）T7未开始使用</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+          </tr>
+          <tr>
+            <td>华中农业大学（上线中）</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+            <td class="zero">0</td>
+            <td class="zero">0</td>
+            <td class="">—</td>
+          </tr>
+          <tr>
+            <td>湖南师范大学</td>
+            <td class="zero">0</td>
+            <td class="">20</td>
+            <td class="rate-low">0.0%</td>
+            <td class="zero">0</td>
+            <td class="">47</td>
+            <td class="rate-low">0.0%</td>
+            <td class="zero">0</td>
+            <td class="">18</td>
+            <td class="rate-low">0.0%</td>
+          </tr>
+          <tr class="sub-total">
+            <td>西南海南湖北 小计</td>
+            <td>2,957</td>
+            <td>5,456</td>
+            <td>54.2%</td>
+            <td>6,693</td>
+            <td>17,341</td>
+            <td>38.6%</td>
+            <td>3,791</td>
+            <td>9,028</td>
+            <td>42.0%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="text-align:center; color:#999; font-size:12px; margin-top:24px; padding-top:16px; border-top:1px solid #eee;">
+    库巴扎运营部 · 区域数据拆分报告 · 数据截至2026年6月30日<br>
+    区域划分参照《2026.3.20运营部人员构架及岗位职责》及钉钉区域管理
+  </div>
+</div>
+</body>
+</html>
