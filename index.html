@@ -2328,11 +2328,17 @@ function getSummaryChartData() {
   return { data: data, total: totalVal };
 }
 
+var _lastChartKey = '';
 function renderRegionChart() {
   var cd = getSummaryChartData();
   var labels = cd.data.map(function(d){ return d.name; });
   var values = cd.data.map(function(d){ return d.value; });
   var total = cd.total;
+
+  // 数据没变就不重绘（避免编辑无关列时图表闪烁）
+  var key = labels.join('|') + '::' + values.join('|') + '::' + total;
+  if (key === _lastChartKey && regionChart) return;
+  _lastChartKey = key;
 
   var subEl = document.getElementById('chartSub');
   if (subEl) subEl.textContent = '合计 ' + total.toLocaleString() + '万 · 按占比降序';
