@@ -133,6 +133,9 @@ tr.new-row td[contenteditable="true"]:empty::before {
 /* Insight box */
 .insight { background: #f6f8fa; border-left: 3px solid #1890ff; padding: 12px 16px; margin: 8px 0; font-size: 13px; color: #555; }
 .insight strong { color: #1a1a2e; }
+.insight[contenteditable="true"] { cursor: text; transition: background 0.2s, border-color 0.2s; }
+.insight[contenteditable="true"]:hover { background: #fffbe6; border-left-color: #faad14; }
+.insight[contenteditable="true"]:focus { outline: none; background: #fff; border-left-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.15); }
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -286,13 +289,13 @@ tr.new-row td[contenteditable="true"]:empty::before {
 
   <!-- Key Insights -->
   <div class="card">
-    <div class="card-title">二、关键发现</div>
-    <div class="insight"><strong>线上率最低区域：</strong>江浙沪 27.2%，主要受浙大（20%）、东南大学（3%）拖累。这两个项目系统总金额合计5.78亿，但线上仅1.30亿。</div>
-    <div class="insight"><strong>线上率最高区域：</strong>广东福建 74.8%，福建医科、福建省妇幼等老系统项目线上率近100%。</div>
-    <div class="insight"><strong>线上率下降最快：</strong>北京从25H1的71.4%降至26H1的44.9%，主要因中国农大系统总金额暴增（0.04亿→1.50亿）但线上率仅0.9%，以及北大系统总金额从0.94亿增至2.05亿但线上率从87.7%降至40.3%。</div>
-    <div class="insight"><strong>线上流量增长最快：</strong>江浙沪同比+96.9%（1.20亿→2.35亿），主要靠浙大新系统上线贡献0.85亿增量。</div>
-    <div class="insight"><strong>线上流量下降区域：</strong>北京同比-0.8%（2.62亿→2.60亿），是唯一负增长区域，清华-19.1%、上交医-19.5%头部流失明显。</div>
-    <div class="insight"><strong>全平台线上率：</strong>从25H1的53.8%降至26H1的40.9%，下降12.9个百分点。主要原因是新项目系统总金额大但线上转化低（如浙大4.27亿总额仅20%线上率、中农1.50亿总额仅0.9%线上率）。</div>
+    <div class="card-title">二、关键发现 <span style="font-size:12px; font-weight:normal; color:#999;">（可编辑，修改后自动保存）</span></div>
+    <div class="insight" contenteditable="true" data-insight-id="1"><strong>江浙沪区域增长：</strong>2026H1同比2025H1增长+96.9%，主要得益于浙江大学项目上线后上半年直接贡献8533万，南工、南农线上流量稳重有增。同时该区域2026H1线上率仅27%，可挖掘空间巨大；另有同济大学等潜力股，该区域下半年预计势不可挡。</div>
+    <div class="insight" contenteditable="true" data-insight-id="2"><strong>北京区域下降：</strong>各区域中仅北京区域2026H1同比2025H1是有所下降的，下降了0.8%，需要特别关注项目情况，进一步做具体分析。</div>
+    <div class="insight" contenteditable="true" data-insight-id="3"><strong>线上率下降最快：</strong>北京从25H1的71.4%降至26H1的44.9%，主要因中国农大系统总金额暴增（0.04亿→1.50亿）但线上率仅0.9%，以及北大系统总金额从0.94亿增至2.05亿但线上率从87.7%降至40.3%。</div>
+    <div class="insight" contenteditable="true" data-insight-id="4"><strong>线上流量增长最快：</strong>江浙沪同比+96.9%（1.20亿→2.35亿），主要靠浙大新系统上线贡献0.85亿增量。</div>
+    <div class="insight" contenteditable="true" data-insight-id="5"><strong>线上流量下降区域：</strong>北京同比-0.8%（2.62亿→2.60亿），是唯一负增长区域，清华-19.1%、上交医-19.5%头部流失明显。</div>
+    <div class="insight" contenteditable="true" data-insight-id="6"><strong>全平台线上率：</strong>从25H1的53.8%降至26H1的40.9%，下降12.9个百分点。主要原因是新项目系统总金额大但线上转化低（如浙大4.27亿总额仅20%线上率、中农1.50亿总额仅0.9%线上率）。</div>
   </div>
 
   <!-- Detail Tables -->
@@ -2049,6 +2052,37 @@ if (document.readyState === 'loading') {
 } else {
   restoreCustomRows();
 }
+
+// ====== 关键发现 localStorage 持久化 ======
+var INSIGHT_KEY = 'regional-report-insights-v1';
+function getInsights() {
+  try { return JSON.parse(localStorage.getItem(INSIGHT_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+function saveInsight(id, html) {
+  var data = getInsights();
+  data[id] = html;
+  try { localStorage.setItem(INSIGHT_KEY, JSON.stringify(data)); } catch(e) {}
+}
+// 恢复关键发现
+function restoreInsights() {
+  var data = getInsights();
+  document.querySelectorAll('.insight[contenteditable="true"]').forEach(function(el) {
+    var id = el.getAttribute('data-insight-id');
+    if (id && data[id] != null) el.innerHTML = data[id];
+  });
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', restoreInsights);
+} else {
+  restoreInsights();
+}
+// 编辑后保存
+document.addEventListener('focusout', function(e) {
+  if (!e.target.matches('.insight[contenteditable="true"]')) return;
+  var id = e.target.getAttribute('data-insight-id');
+  if (id) saveInsight(id, e.target.innerHTML);
+});
 
 // 输入时：只做汇总计算，不修改文字内容（避免光标跳动）
 document.addEventListener('input', function(e) {
