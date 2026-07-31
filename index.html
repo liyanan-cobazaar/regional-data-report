@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <title>区域数据拆分报告 - 库巴扎运营部</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,6 +24,12 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 .summary-table .region-name { font-weight: 600; text-align: center; }
 .summary-table .total-row { background: #fff8e8; font-weight: 700; }
 .summary-table .metric-label { background: #fafafa; color: #888; font-size: 12px; }
+
+/* Chart */
+.chart-card { background: #fff; border-radius: 8px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.chart-title { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #e8e8e8; }
+.chart-title .chart-sub { font-size: 12px; font-weight: normal; color: #999; margin-left: 8px; }
+.chart-wrap { position: relative; height: 340px; width: 100%; }
 
 /* Region colors */
 .r-jzh { color: #d4380d; }
@@ -285,6 +292,12 @@ tr.new-row td[contenteditable="true"]:empty::before {
     <div style="margin-top:12px; font-size:12px; color:#888;">
       说明：线上率 = 线上流量 ÷ 系统总金额 × 100%。系统总金额即全平台总金额（含线上+线下）。25年H1系统总金额由月度数据加总计算。
     </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-card">
+    <div class="chart-title">2026H1各区域线上流量占比 横向柱状图<span class="chart-sub" id="chartSub"></span></div>
+    <div class="chart-wrap"><canvas id="regionChart"></canvas></div>
   </div>
 
   <!-- Key Insights -->
@@ -2290,6 +2303,121 @@ document.addEventListener('focusout', function(e) {
   // 保存整行数据到 localStorage
   updateRowCell(e.target.closest('tr.new-row'));
 });
+
+// ====== 横向柱状图：26H1各区域线上流量占比（马卡龙色系，动态读取表格数据） ======
+var regionChart = null;
+var MACARON_COLORS = ['#FFB5C5','#A8D8B9','#C8B6E2','#FFD8A8','#A0CED9','#FFF2A8','#FFC8DD','#BDE0FE'];
+
+function getSummaryChartData() {
+  var rows = document.querySelectorAll('.summary-table tbody tr');
+  var data = [];
+  var totalVal = 0;
+  rows.forEach(function(row) {
+    if (row.classList.contains('total-row')) {
+      var tc = row.children[7];
+      if (tc) totalVal = parseFloat(tc.textContent.replace(/[^0-9.]/g,'')) || 0;
+      return;
+    }
+    var nameCell = row.querySelector('.region-name');
+    var onlineCell = row.children[7];
+    if (!nameCell || !onlineCell) return;
+    data.push({ name: nameCell.textContent.trim(), value: parseFloat(onlineCell.textContent.replace(/[^0-9.]/g,'')) || 0 });
+  });
+  data.sort(function(a,b){ return b.value - a.value; });
+  if (totalVal === 0) totalVal = data.reduce(function(s,d){ return s + d.value; }, 0);
+  return { data: data, total: totalVal };
+}
+
+function renderRegionChart() {
+  var cd = getSummaryChartData();
+  var labels = cd.data.map(function(d){ return d.name; });
+  var values = cd.data.map(function(d){ return d.value; });
+  var total = cd.total;
+
+  var subEl = document.getElementById('chartSub');
+  if (subEl) subEl.textContent = '合计 ' + total.toLocaleString() + '万 · 按占比降序';
+
+  var canvas = document.getElementById('regionChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  if (regionChart) { regionChart.destroy(); regionChart = null; }
+
+  regionChart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: MACARON_COLORS.slice(0, labels.length),
+        borderRadius: 6,
+        barPercentage: 0.65
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          titleColor: '#333', bodyColor: '#555', borderColor: '#e0e0e0', borderWidth: 1,
+          callbacks: {
+            label: function(ctx) {
+              var v = ctx.parsed.x;
+              var pct = total > 0 ? (v/total*100).toFixed(1) : '0.0';
+              return v.toLocaleString() + '万 (' + pct + '%)';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: { color: '#f5f5f5' },
+          ticks: { color: '#aaa', callback: function(v){ return v.toLocaleString()+'万'; } }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: '#555', font: { size: 13, weight: '600' } }
+        }
+      },
+      animation: { duration: 600 }
+    },
+    plugins: [{
+      id: 'barLabels',
+      afterDatasetsDraw: function(chart) {
+        var ctx2 = chart.ctx;
+        chart.data.datasets[0].data.forEach(function(value, index) {
+          var meta = chart.getDatasetMeta(0);
+          var bar = meta.data[index];
+          if (!bar) return;
+          var pct = total > 0 ? (value/total*100).toFixed(1) : '0.0';
+          ctx2.save();
+          ctx2.font = '600 12px -apple-system, "PingFang SC", sans-serif';
+          ctx2.fillStyle = '#666';
+          ctx2.textAlign = 'left';
+          ctx2.textBaseline = 'middle';
+          ctx2.fillText(value.toLocaleString() + '万 (' + pct + '%)', bar.x + 8, bar.y);
+          ctx2.restore();
+        });
+      }
+    }]
+  });
+}
+
+// 页面加载时渲染
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', renderRegionChart);
+} else {
+  renderRegionChart();
+}
+
+// MutationObserver：汇总表任何变化 → 重新渲染图表
+var summaryTableEl = document.querySelector('.summary-table tbody');
+if (summaryTableEl && typeof MutationObserver !== 'undefined') {
+  var chartObserver = new MutationObserver(function() { renderRegionChart(); });
+  chartObserver.observe(summaryTableEl, { childList: true, subtree: true, characterData: true });
+}
 </script>
 </body>
 </html>
