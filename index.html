@@ -76,6 +76,34 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 .detail-table .sub-total td.grp-h1-26 { background: #fff5e0; }
 .detail-table .sub-total td.grp-h2 { background: #f8edff; }
 
+/* 新增项目按钮 */
+.table-actions { padding: 12px 0 0 0; text-align: left; }
+.btn-add-row {
+  background: #e6f7ff;
+  color: #0958d9;
+  border: 1px dashed #91caff;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.btn-add-row:hover {
+  background: #91caff;
+  color: #fff;
+  border-style: solid;
+}
+
+/* 新插入的空行样式 */
+tr.new-row { background: #fffbe6; }
+tr.new-row td.grp-name { font-style: italic; color: #999; }
+tr.new-row td[contenteditable="true"]:empty::before {
+  content: attr(data-placeholder);
+  color: #ccc;
+  font-style: italic;
+}
+
 /* Rate colors */
 .rate-high { color: #52c41a; font-weight: 600; }
 .rate-mid { color: #fa8c16; font-weight: 600; }
@@ -566,6 +594,9 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
           </tr>
         </tbody>
       </table>
+      <div class="table-actions">
+        <button type="button" class="btn-add-row" data-region-key="jzh">+ 新增项目</button>
+      </div>
     </div>
     <div class="region-section">
       <div class="region-header">
@@ -897,6 +928,9 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
           </tr>
         </tbody>
       </table>
+      <div class="table-actions">
+        <button type="button" class="btn-add-row" data-region-key="bj">+ 新增项目</button>
+      </div>
     </div>
     <div class="region-section">
       <div class="region-header">
@@ -1176,6 +1210,9 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
           </tr>
         </tbody>
       </table>
+      <div class="table-actions">
+        <button type="button" class="btn-add-row" data-region-key="dbxb">+ 新增项目</button>
+      </div>
     </div>
     <div class="region-section">
       <div class="region-header">
@@ -1364,6 +1401,9 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
           </tr>
         </tbody>
       </table>
+      <div class="table-actions">
+        <button type="button" class="btn-add-row" data-region-key="tj">+ 新增项目</button>
+      </div>
     </div>
     <div class="region-section">
       <div class="region-header">
@@ -1578,6 +1618,9 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
           </tr>
         </tbody>
       </table>
+      <div class="table-actions">
+        <button type="button" class="btn-add-row" data-region-key="gdfj">+ 新增项目</button>
+      </div>
     </div>
     <div class="region-section">
       <div class="region-header">
@@ -1792,6 +1835,9 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
           </tr>
         </tbody>
       </table>
+      <div class="table-actions">
+        <button type="button" class="btn-add-row" data-region-key="xn">+ 新增项目</button>
+      </div>
     </div>
   </div>
 
@@ -1923,6 +1969,111 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+
+// 新增项目按钮
+document.addEventListener('click', function(e) {
+  if (!e.target.matches('.btn-add-row')) return;
+
+  const regionKey = e.target.getAttribute('data-region-key');
+  const table = e.target.closest('.region-section').querySelector('table.detail-table');
+  const tbody = table.querySelector('tbody');
+  const subtotalRow = tbody.querySelector('tr.sub-total');
+
+  if (!subtotalRow) return;
+
+  const newRow = document.createElement('tr');
+  newRow.className = 'new-row';
+  newRow.innerHTML = `
+    <td class="grp-name" contenteditable="true" data-placeholder="输入项目名称"></td>
+    <td class="grp-h1" contenteditable="true" data-placeholder="0" data-num-col="h1-online"></td>
+    <td class="grp-h1" contenteditable="true" data-placeholder="0" data-num-col="h1-total"></td>
+    <td class="grp-h1 rate-auto" data-rate-for="h1">—</td>
+    <td class="grp-full" contenteditable="true" data-placeholder="0" data-num-col="full-online"></td>
+    <td class="grp-full" contenteditable="true" data-placeholder="0" data-num-col="full-total"></td>
+    <td class="grp-full rate-auto" data-rate-for="full">—</td>
+    <td class="grp-h1-26" contenteditable="true" data-placeholder="0" data-num-col="h1-26-online"></td>
+    <td class="grp-h1-26" contenteditable="true" data-placeholder="0" data-num-col="h1-26-total"></td>
+    <td class="grp-h1-26 rate-auto" data-rate-for="h1-26">—</td>
+    <td class="grp-h2 natural-auto" data-natural-for="h1-26-online">0</td>
+    <td class="grp-h2 target" contenteditable="true" data-project-region="${regionKey}"></td>
+  `;
+
+  tbody.insertBefore(newRow, subtotalRow);
+
+  const nameCell = newRow.querySelector('td.grp-name');
+  if (nameCell) nameCell.focus();
+});
+
+// 新增行输入监听：自动算线上率 + 2026H2自然流量
+document.addEventListener('input', function(e) {
+  if (!e.target.matches('td[contenteditable="true"]')) return;
+  const row = e.target.closest('tr.new-row');
+  if (!row) return;
+
+  const numCol = e.target.getAttribute('data-num-col');
+  if (!numCol) return;
+
+  if (numCol.endsWith('-online')) {
+    const periodKey = numCol.replace('-online', '');
+    const onlineCell = row.querySelector(`td[data-num-col="${periodKey}-online"]`);
+    const totalCell = row.querySelector(`td[data-num-col="${periodKey}-total"]`);
+    const rateCell = row.querySelector(`td.rate-auto[data-rate-for="${periodKey}"]`);
+    if (onlineCell && totalCell && rateCell) {
+      const online = parseFloat(onlineCell.textContent.replace(/[^0-9.]/g, '')) || 0;
+      const total = parseFloat(totalCell.textContent.replace(/[^0-9.]/g, '')) || 0;
+      if (total > 0) {
+        rateCell.textContent = (online / total * 100).toFixed(1) + '%';
+        rateCell.classList.toggle('rate-low', (online / total) < 0.4);
+        rateCell.classList.toggle('rate-high', (online / total) >= 0.4);
+      } else {
+        rateCell.textContent = '—';
+        rateCell.classList.remove('rate-low', 'rate-high');
+      }
+    }
+
+    if (numCol === 'h1-26-online') {
+      const online = parseFloat(e.target.textContent.replace(/[^0-9.]/g, '')) || 0;
+      const naturalCell = row.querySelector('td.natural-auto[data-natural-for="h1-26-online"]');
+      if (naturalCell) naturalCell.textContent = Math.round(online * 1.5).toLocaleString();
+    }
+  }
+
+  if (numCol.endsWith('-total')) {
+    const periodKey = numCol.replace('-total', '');
+    const onlineCell = row.querySelector(`td[data-num-col="${periodKey}-online"]`);
+    const totalCell = row.querySelector(`td[data-num-col="${periodKey}-total"]`);
+    const rateCell = row.querySelector(`td.rate-auto[data-rate-for="${periodKey}"]`);
+    if (onlineCell && totalCell && rateCell) {
+      const online = parseFloat(onlineCell.textContent.replace(/[^0-9.]/g, '')) || 0;
+      const total = parseFloat(totalCell.textContent.replace(/[^0-9.]/g, '')) || 0;
+      if (total > 0) {
+        rateCell.textContent = (online / total * 100).toFixed(1) + '%';
+        rateCell.classList.toggle('rate-low', (online / total) < 0.4);
+        rateCell.classList.toggle('rate-high', (online / total) >= 0.4);
+      } else {
+        rateCell.textContent = '—';
+        rateCell.classList.remove('rate-low', 'rate-high');
+      }
+    }
+  }
+});
+
+// 新增行失焦格式化
+document.addEventListener('focusout', function(e) {
+  if (!e.target.matches('tr.new-row td[contenteditable="true"]')) return;
+  if (e.target.classList.contains('target') || e.target.classList.contains('grp-name')) return;
+
+  let raw = e.target.textContent.replace(/[^0-9.]/g, '');
+  if (raw) {
+    let num = parseFloat(raw);
+    if (!isNaN(num)) {
+      e.target.textContent = num.toLocaleString();
+    }
+  } else {
+    e.target.textContent = '';
+  }
+});
 </script>
 </body>
 </html>
