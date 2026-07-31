@@ -20,7 +20,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .summary-table th { background: #f0f2f5; color: #555; font-weight: 600; padding: 10px 8px; text-align: center; border: 1px solid #e0e0e0; white-space: nowrap; }
 .summary-table td { padding: 10px 8px; text-align: center; border: 1px solid #e0e0e0; }
-.summary-table .region-name { font-weight: 600; text-align: left; padding-left: 12px; }
+.summary-table .region-name { font-weight: 600; text-align: center; }
 .summary-table .total-row { background: #fff8e8; font-weight: 700; }
 .summary-table .metric-label { background: #fafafa; color: #888; font-size: 12px; }
 
@@ -39,10 +39,10 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 .region-header .badge { font-size: 12px; color: #888; background: #f0f2f5; padding: 2px 10px; border-radius: 10px; }
 
 .detail-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.detail-table th { background: #f5f7fa; color: #666; font-weight: 600; padding: 8px 6px; text-align: right; border: 1px solid #e8e8e8; white-space: nowrap; }
-.detail-table th:first-child { text-align: left; padding-left: 10px; }
-.detail-table td { padding: 7px 6px; text-align: right; border: 1px solid #e8e8e8; }
-.detail-table td:first-child { text-align: left; padding-left: 10px; }
+.detail-table th { background: #f5f7fa; color: #666; font-weight: 600; padding: 8px 6px; text-align: center; border: 1px solid #e8e8e8; white-space: nowrap; }
+.detail-table th:first-child { text-align: center; }
+.detail-table td { padding: 7px 6px; text-align: center; border: 1px solid #e8e8e8; }
+.detail-table td:first-child { text-align: center; }
 .detail-table tr:hover { background: #fafafa; }
 .detail-table .sub-total { background: #f0f5ff; font-weight: 600; }
 .detail-table .zero { color: #ccc; }
@@ -1819,34 +1819,38 @@ document.addEventListener('input', function(e) {
     e.target.textContent = '';
   }
 
-  let region = e.target.getAttribute('data-project-region');
-  if (!region) return;
+  // 判断编辑的是哪种单元格
+  let projectRegion = e.target.getAttribute('data-project-region');
+  let cellType = e.target.getAttribute('data-type');
 
-  // 1) 更新明细表小计
-  const subtotalCell = document.querySelector('td.subtotal-target[data-region="' + region + '"]');
-  if (subtotalCell) {
-    const projectCells = document.querySelectorAll('td.target[data-project-region="' + region + '"]');
-    let sum = 0;
-    projectCells.forEach(c => {
-      let v = parseFloat(c.textContent.replace(/,/g, ''));
-      if (!isNaN(v)) sum += v;
-    });
-    subtotalCell.textContent = sum > 0 ? sum.toLocaleString() : '';
+  // 如果编辑的是明细表项目行 → 更新小计 + 汇总表区域行
+  if (projectRegion) {
+    // 1) 更新明细表小计行
+    const subtotalCell = document.querySelector('td.subtotal-target[data-region="' + projectRegion + '"]');
+    if (subtotalCell) {
+      const projectCells = document.querySelectorAll('td.target[data-project-region="' + projectRegion + '"]');
+      let sum = 0;
+      projectCells.forEach(c => {
+        let v = parseFloat(c.textContent.replace(/,/g, ''));
+        if (!isNaN(v)) sum += v;
+      });
+      subtotalCell.textContent = sum > 0 ? sum.toLocaleString() : '';
+    }
+
+    // 2) 更新汇总表区域行
+    const summaryCell = document.querySelector('td.target[data-type="region"][data-region="' + projectRegion + '"]');
+    if (summaryCell) {
+      const projectCells = document.querySelectorAll('td.target[data-project-region="' + projectRegion + '"]');
+      let sum = 0;
+      projectCells.forEach(c => {
+        let v = parseFloat(c.textContent.replace(/,/g, ''));
+        if (!isNaN(v)) sum += v;
+      });
+      summaryCell.textContent = sum > 0 ? sum.toLocaleString() : '';
+    }
   }
 
-  // 2) 更新汇总表区域行
-  const summaryCell = document.querySelector('td.target[data-type="region"][data-region="' + region + '"]');
-  if (summaryCell) {
-    const projectCells = document.querySelectorAll('td.target[data-project-region="' + region + '"]');
-    let sum = 0;
-    projectCells.forEach(c => {
-      let v = parseFloat(c.textContent.replace(/,/g, ''));
-      if (!isNaN(v)) sum += v;
-    });
-    summaryCell.textContent = sum > 0 ? sum.toLocaleString() : '';
-  }
-
-  // 3) 更新汇总表合计行
+  // 无论编辑哪种单元格，都更新合计行
   const allRegionCells = document.querySelectorAll('td.target[data-type="region"]');
   let grand = 0;
   allRegionCells.forEach(c => {
