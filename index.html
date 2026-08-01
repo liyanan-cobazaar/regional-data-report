@@ -20,6 +20,10 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 /* Summary table */
 .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .summary-table th { background: #f0f2f5; color: #555; font-weight: 600; padding: 10px 8px; text-align: center; border: 1px solid #e0e0e0; white-space: nowrap; }
+.summary-table th[contenteditable="true"] { cursor: text; transition: background 0.2s; }
+.summary-table th[contenteditable="true"]:hover { background: #e6f7ff; }
+.summary-table th[contenteditable="true"]:focus { background: #fffbe6; outline: 2px solid #1890ff; outline-offset: -2px; }
+.summary-table .target-split { background: #f9f0ff; font-weight: 600; color: #531dab; }
 .summary-table td { padding: 10px 8px; text-align: center; border: 1px solid #e0e0e0; }
 .summary-table .region-name { font-weight: 600; text-align: center; }
 .summary-table .total-row { background: #fff8e8; font-weight: 700; }
@@ -167,19 +171,25 @@ tr.new-row td[contenteditable="true"]:empty::before {
     <table class="summary-table">
       <thead>
         <tr>
-          <th rowspan="2">区域</th>
-          <th colspan="3">25年H1（1-6月）</th>
-          <th colspan="3">25年全年（1-12月）</th>
-          <th colspan="3">26年H1（1-6月）</th>
-          <th rowspan="2">2026H2线上<br>自然流量</th>
-          <th rowspan="2">2026H2目标</th>
-          <th rowspan="2">26H1线上<br>同比</th>
-          <th rowspan="2">项目数</th>
+          <th rowspan="2" contenteditable="true" data-th-id="h-region">区域</th>
+          <th colspan="3" contenteditable="true" data-th-id="h-25h1">25年H1（1-6月）</th>
+          <th colspan="3" contenteditable="true" data-th-id="h-25full">25年全年（1-12月）</th>
+          <th colspan="3" contenteditable="true" data-th-id="h-26h1">26年H1（1-6月）</th>
+          <th rowspan="2" contenteditable="true" data-th-id="h-h2natural">2026H2线上<br>自然流量</th>
+          <th rowspan="2" contenteditable="true" data-th-id="h-h2target">2026H2目标</th>
+          <th rowspan="2" contenteditable="true" data-th-id="h-split">25亿目标拆解<br>（2026H2）</th>
+          <th rowspan="2" contenteditable="true" data-th-id="h-projects">项目数</th>
         </tr>
         <tr>
-          <th>线上流量</th><th>系统总金额</th><th>线上率</th>
-          <th>线上流量</th><th>系统总金额</th><th>线上率</th>
-          <th>线上流量</th><th>系统总金额</th><th>线上率</th>
+          <th contenteditable="true" data-th-id="h-25h1-online">线上流量</th>
+          <th contenteditable="true" data-th-id="h-25h1-total">系统总金额</th>
+          <th contenteditable="true" data-th-id="h-25h1-rate">线上率</th>
+          <th contenteditable="true" data-th-id="h-25full-online">线上流量</th>
+          <th contenteditable="true" data-th-id="h-25full-total">系统总金额</th>
+          <th contenteditable="true" data-th-id="h-25full-rate">线上率</th>
+          <th contenteditable="true" data-th-id="h-26h1-online">线上流量</th>
+          <th contenteditable="true" data-th-id="h-26h1-total">系统总金额</th>
+          <th contenteditable="true" data-th-id="h-26h1-rate">线上率</th>
         </tr>
       </thead>
       <tbody>
@@ -195,7 +205,7 @@ tr.new-row td[contenteditable="true"]:empty::before {
           <td>86,575万</td>
           <td class="rate-low">27.2%</td>
           <td>35,322万</td><td class="target" contenteditable="true" data-type="region" data-region="jzh"></td>
-          <td>+96.9%</td>
+          <td class="target-split" data-split-region="jzh">51,957万</td>
           <td>21</td>
         </tr>
         <tr>
@@ -210,7 +220,7 @@ tr.new-row td[contenteditable="true"]:empty::before {
           <td>57,922万</td>
           <td class="rate-mid">44.9%</td>
           <td>38,974万</td><td class="target" contenteditable="true" data-type="region" data-region="bj"></td>
-          <td>-0.8%</td>
+          <td class="target-split" data-split-region="bj">57,335万</td>
           <td>22</td>
         </tr>
         <tr>
@@ -225,7 +235,7 @@ tr.new-row td[contenteditable="true"]:empty::before {
           <td>12,957万</td>
           <td class="rate-high">70.2%</td>
           <td>13,650万</td><td class="target" contenteditable="true" data-type="region" data-region="dbxb"></td>
-          <td>+67.1%</td>
+          <td class="target-split" data-split-region="dbxb">20,079万</td>
           <td>18</td>
         </tr>
         <tr>
@@ -240,7 +250,7 @@ tr.new-row td[contenteditable="true"]:empty::before {
           <td>14,208万</td>
           <td class="rate-mid">58.1%</td>
           <td>12,376万</td><td class="target" contenteditable="true" data-type="region" data-region="tj"></td>
-          <td>+57.0%</td>
+          <td class="target-split" data-split-region="tj">18,205万</td>
           <td>11</td>
         </tr>
         <tr>
@@ -255,7 +265,7 @@ tr.new-row td[contenteditable="true"]:empty::before {
           <td>9,753万</td>
           <td class="rate-high">74.8%</td>
           <td>10,941万</td><td class="target" contenteditable="true" data-type="region" data-region="gdfj"></td>
-          <td>+36.5%</td>
+          <td class="target-split" data-split-region="gdfj">16,095万</td>
           <td>13</td>
         </tr>
         <tr>
@@ -270,7 +280,7 @@ tr.new-row td[contenteditable="true"]:empty::before {
           <td>9,028万</td>
           <td class="rate-mid">42.0%</td>
           <td>5,686万</td><td class="target" contenteditable="true" data-type="region" data-region="xn"></td>
-          <td>+28.2%</td>
+          <td class="target-split" data-split-region="xn">8,364万</td>
           <td>13</td>
         </tr>
         <tr class="total-row">
@@ -285,7 +295,7 @@ tr.new-row td[contenteditable="true"]:empty::before {
           <td>190,443万</td>
           <td>40.9%</td>
           <td>116,949万</td><td class="target" id="total-target"></td>
-          <td>+36.4%</td>
+          <td class="target-split-total">172,034万</td>
           <td>98</td>
         </tr>
       </tbody>
@@ -2129,12 +2139,77 @@ function restoreTargets() {
 function restoreAllData() {
   restoreCustomRows();
   restoreTargets();
+  restoreHeaders();
+  recalcTargetSplit();
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', restoreAllData);
 } else {
   restoreAllData();
 }
+
+// ====== 25亿目标拆解（2026H2）动态计算 ======
+var ANNUAL_TARGET = 250000;
+
+function recalcTargetSplit() {
+  var rows = document.querySelectorAll('.summary-table tbody tr');
+  var total26H1 = 0;
+  var regionData = [];
+
+  rows.forEach(function(row) {
+    if (row.classList.contains('total-row')) return;
+    var nameCell = row.querySelector('.region-name');
+    var onlineCell = row.children[7];
+    if (!nameCell || !onlineCell) return;
+    var val = parseFloat(onlineCell.textContent.replace(/[^0-9.]/g,'')) || 0;
+    total26H1 += val;
+    regionData.push({ row: row, val: val });
+  });
+
+  var h2Target = ANNUAL_TARGET - total26H1;
+
+  regionData.forEach(function(d) {
+    var splitCell = d.row.querySelector('td.target-split');
+    if (splitCell) {
+      var split = total26H1 > 0 ? Math.round((d.val / total26H1) * h2Target) : 0;
+      splitCell.textContent = split.toLocaleString() + '万';
+    }
+  });
+
+  var totalSplitCell = document.querySelector('.summary-table tbody tr.total-row td.target-split-total');
+  if (totalSplitCell) {
+    totalSplitCell.textContent = h2Target.toLocaleString() + '万';
+  }
+}
+
+// ====== 表头 localStorage 持久化 ======
+var HEADER_KEY = 'regional-report-headers-v1';
+
+function saveHeaders() {
+  var headers = {};
+  document.querySelectorAll('.summary-table thead th[data-th-id]').forEach(function(th) {
+    headers[th.getAttribute('data-th-id')] = th.innerHTML;
+  });
+  try { localStorage.setItem(HEADER_KEY, JSON.stringify(headers)); } catch(e) {}
+}
+
+function restoreHeaders() {
+  var saved;
+  try { saved = localStorage.getItem(HEADER_KEY); } catch(e) { return; }
+  if (!saved) return;
+  try {
+    var headers = JSON.parse(saved);
+    document.querySelectorAll('.summary-table thead th[data-th-id]').forEach(function(th) {
+      var id = th.getAttribute('data-th-id');
+      if (headers[id]) th.innerHTML = headers[id];
+    });
+  } catch(e) {}
+}
+
+// 表头失焦时保存
+document.querySelectorAll('.summary-table thead th[data-th-id]').forEach(function(th) {
+  th.addEventListener('focusout', saveHeaders);
+});
 
 // ====== 关键发现 localStorage 持久化 ======
 var INSIGHT_KEY = 'regional-report-insights-v1';
@@ -2642,6 +2717,7 @@ if (summaryTableEl && typeof MutationObserver !== 'undefined') {
     _chartDebounce = setTimeout(function() {
       renderRegionChart();
       renderYoyChart();
+      recalcTargetSplit();
     }, 200);
   });
   chartObserver.observe(summaryTableEl, { childList: true, subtree: true, characterData: true });
