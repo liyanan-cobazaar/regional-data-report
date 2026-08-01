@@ -2672,8 +2672,6 @@ function renderYoyChart() {
       id: 'yoyBarLabels',
       afterDatasetsDraw: function(chart) {
         var ctx2 = chart.ctx;
-        var chartArea = chart.chartArea;
-        var labelLeftX = chartArea ? chartArea.left : 0;
         chart.data.datasets[0].data.forEach(function(value, index) {
           var meta = chart.getDatasetMeta(0);
           var bar = meta.data[index];
@@ -2686,13 +2684,15 @@ function renderYoyChart() {
           ctx2.font = '600 11px -apple-system, "PingFang SC", sans-serif';
           ctx2.fillStyle = d.rate >= 0 ? '#c0392b' : '#2E7D32';
           if (d.rate >= 0) {
+            // 正增长：标签显示在柱子末端右侧
             ctx2.textAlign = 'left';
             ctx2.textBaseline = 'middle';
             ctx2.fillText(labelText, bar.x + 8, bar.y);
           } else {
+            // 负增长：标签显示在柱子右侧（即 0% 基准线左侧），紧贴柱子末端
             ctx2.textAlign = 'right';
             ctx2.textBaseline = 'middle';
-            ctx2.fillText(labelText, labelLeftX - 6, bar.y);
+            ctx2.fillText(labelText, bar.x - 6, bar.y);
           }
           ctx2.restore();
         });
