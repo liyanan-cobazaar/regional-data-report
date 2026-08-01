@@ -26,9 +26,11 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 .summary-table .metric-label { background: #fafafa; color: #888; font-size: 12px; }
 
 /* Chart */
-.chart-card { background: #fff; border-radius: 8px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-.chart-title { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #e8e8e8; }
-.chart-title .chart-sub { font-size: 12px; font-weight: normal; color: #999; margin-left: 8px; }
+.charts-row { display: flex; gap: 20px; margin-bottom: 20px; }
+.chart-card { background: #fff; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.chart-half { flex: 1; min-width: 0; }
+.chart-title { font-size: 14px; font-weight: 600; color: #1a1a2e; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #e8e8e8; }
+.chart-title .chart-sub { font-size: 11px; font-weight: normal; color: #999; margin-left: 8px; }
 .chart-wrap { position: relative; height: 340px; width: 100%; }
 
 /* Region colors */
@@ -294,10 +296,16 @@ tr.new-row td[contenteditable="true"]:empty::before {
     </div>
   </div>
 
-  <!-- Chart -->
-  <div class="chart-card">
-    <div class="chart-title">2026H1各区域线上流量占比 横向柱状图<span class="chart-sub" id="chartSub"></span></div>
-    <div class="chart-wrap"><canvas id="regionChart"></canvas></div>
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="chart-card chart-half">
+      <div class="chart-title">2026H1各区域线上流量占比 横向柱状图<span class="chart-sub" id="chartSub"></span></div>
+      <div class="chart-wrap"><canvas id="regionChart"></canvas></div>
+    </div>
+    <div class="chart-card chart-half">
+      <div class="chart-title">2026H1各区域线上流量同比2025H1增长率横向柱状图<span class="chart-sub" id="yoyChartSub"></span></div>
+      <div class="chart-wrap"><canvas id="yoyChart"></canvas></div>
+    </div>
   </div>
 
   <!-- Key Insights -->
@@ -2483,13 +2491,148 @@ if (document.readyState === 'loading') {
   renderRegionChart();
 }
 
+// ====== 同比增长率横向柱状图：动态读取25H1和26H1线上数据 ======
+var yoyChart = null;
+var _lastYoyKey = '';
+
+function getYoYChartData() {
+  var rows = document.querySelectorAll('.summary-table tbody tr');
+  var data = [];
+  rows.forEach(function(row) {
+    if (row.classList.contains('total-row')) return;
+    var nameCell = row.querySelector('.region-name');
+    if (!nameCell) return;
+    var cell25 = row.children[1];
+    var cell26 = row.children[7];
+    if (!cell25 || !cell26) return;
+    var h1_25 = parseFloat(cell25.textContent.replace(/[^0-9.]/g,'')) || 0;
+    var h1_26 = parseFloat(cell26.textContent.replace(/[^0-9.]/g,'')) || 0;
+    var amount = h1_26 - h1_25;
+    var rate = h1_25 > 0 ? (amount / h1_25 * 100) : 0;
+    data.push({ name: nameCell.textContent.trim(), rate: rate, amount: amount });
+  });
+  data.sort(function(a,b){ return b.rate - a.rate; });
+  return data;
+}
+
+function renderYoyChart() {
+  var cd = getYoYChartData();
+  var labels = cd.map(function(d){ return d.name; });
+  var rates = cd.map(function(d){ return d.rate; });
+
+  var key = labels.join('|') + '::' + rates.map(function(r){ return r.toFixed(1); }).join('|');
+  if (key === _lastYoyKey && yoyChart) return;
+  _lastYoyKey = key;
+
+  var posCount = cd.filter(function(d){ return d.rate >= 0; }).length;
+  var negCount = cd.length - posCount;
+  var subEl = document.getElementById('yoyChartSub');
+  if (subEl) subEl.textContent = posCount + '个区域增长 · ' + negCount + '个下降 · 按增长率降序';
+
+  var canvas = document.getElementById('yoyChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  if (yoyChart) { yoyChart.destroy(); yoyChart = null; }
+
+  var colors = rates.map(function(v){ return v >= 0 ? '#FFB7B2' : '#66BB6A'; });
+  var borderColors = rates.map(function(v){ return v >= 0 ? '#E88F8E' : '#2E7D32'; });
+
+  yoyChart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: rates,
+        backgroundColor: colors,
+        borderColor: borderColors,
+        borderWidth: 1,
+        borderRadius: 4,
+        barPercentage: 0.65
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          titleColor: '#333', bodyColor: '#555', borderColor: '#e0e0e0', borderWidth: 1,
+          callbacks: {
+            label: function(ctx) {
+              var d = cd[ctx.dataIndex];
+              var s = d.rate >= 0 ? '+' : '';
+              return [
+                '同比增长率: ' + s + d.rate.toFixed(1) + '%',
+                '增长金额: ' + (d.amount >= 0 ? '+' : '') + d.amount.toLocaleString() + '万'
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: -15,
+          max: 120,
+          grid: {
+            color: function(c) { return c.tick.value === 0 ? '#999' : '#f5f5f5'; },
+            lineWidth: function(c) { return c.tick.value === 0 ? 1.5 : 1; }
+          },
+          ticks: {
+            color: '#aaa',
+            callback: function(v) { return v + '%'; }
+          }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: '#555', font: { size: 12, weight: '600' } }
+        }
+      },
+      animation: { duration: 600 }
+    },
+    plugins: [{
+      id: 'yoyBarLabels',
+      afterDatasetsDraw: function(chart) {
+        var ctx2 = chart.ctx;
+        chart.data.datasets[0].data.forEach(function(value, index) {
+          var meta = chart.getDatasetMeta(0);
+          var bar = meta.data[index];
+          if (!bar) return;
+          var d = cd[index];
+          var sign = d.rate >= 0 ? '+' : '';
+          var amtSign = d.amount >= 0 ? '+' : '';
+          var labelText = sign + d.rate.toFixed(1) + '%  ' + amtSign + d.amount.toLocaleString() + '万';
+          ctx2.save();
+          ctx2.font = '600 11px -apple-system, "PingFang SC", sans-serif';
+          ctx2.fillStyle = d.rate >= 0 ? '#c0392b' : '#2E7D32';
+          ctx2.textAlign = d.rate >= 0 ? 'left' : 'right';
+          ctx2.textBaseline = 'middle';
+          var offsetX = d.rate >= 0 ? 8 : -8;
+          ctx2.fillText(labelText, bar.x + offsetX, bar.y);
+          ctx2.restore();
+        });
+      }
+    }]
+  });
+}
+
+// 页面加载时渲染
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', renderYoyChart);
+} else {
+  renderYoyChart();
+}
+
 // MutationObserver：汇总表变化 → 防抖后重绘图表（数据没变则跳过）
 var _chartDebounce = null;
 var summaryTableEl = document.querySelector('.summary-table tbody');
 if (summaryTableEl && typeof MutationObserver !== 'undefined') {
   var chartObserver = new MutationObserver(function() {
     clearTimeout(_chartDebounce);
-    _chartDebounce = setTimeout(renderRegionChart, 200);
+    _chartDebounce = setTimeout(function() {
+      renderRegionChart();
+      renderYoyChart();
+    }, 200);
   });
   chartObserver.observe(summaryTableEl, { childList: true, subtree: true, characterData: true });
 }
