@@ -2059,11 +2059,74 @@ function recalcAllSums() {
   var tc = document.getElementById('total-target');
   if (tc) tc.textContent = grand > 0 ? grand.toLocaleString() : '';
 }
+
+// ====== 原项目行目标值 localStorage 持久化 ======
+var TARGET_KEY = 'regional-report-targets-v1';
+function getTargets() {
+  try { return JSON.parse(localStorage.getItem(TARGET_KEY)) || { detail: {}, summary: {} }; }
+  catch(e) { return { detail: {}, summary: {} }; }
+}
+function saveTargets() {
+  var data = { detail: {}, summary: {} };
+  // 保存明细表原项目行目标值（跳过新增行）
+  document.querySelectorAll('td.target[data-project-region]').forEach(function(cell) {
+    var row = cell.closest('tr');
+    if (row && row.classList.contains('new-row')) return;
+    var region = cell.getAttribute('data-project-region');
+    var nameCell = row.querySelector('td.grp-name');
+    var name = nameCell ? nameCell.textContent.trim() : '';
+    if (!data.detail[region]) data.detail[region] = [];
+    data.detail[region].push({ name: name, value: cell.textContent });
+  });
+  // 保存汇总表区域行目标值
+  document.querySelectorAll('td.target[data-type="region"]').forEach(function(cell) {
+    var region = cell.getAttribute('data-region');
+    data.summary[region] = cell.textContent;
+  });
+  try { localStorage.setItem(TARGET_KEY, JSON.stringify(data)); } catch(e) {}
+}
+function restoreTargets() {
+  var data = getTargets();
+  // 恢复明细表原项目行目标值
+  Object.keys(data.detail || {}).forEach(function(region) {
+    var savedItems = data.detail[region] || [];
+    document.querySelectorAll('td.target[data-project-region="'+region+'"]').forEach(function(cell) {
+      var row = cell.closest('tr');
+      if (row && row.classList.contains('new-row')) return;
+      var nameCell = row.querySelector('td.grp-name');
+      var name = nameCell ? nameCell.textContent.trim() : '';
+      var match = savedItems.find(function(item) { return item.name === name; });
+      if (match) cell.textContent = match.value;
+    });
+  });
+  // 先从明细汇总到汇总表
+  recalcAllSums();
+  // 对于汇总表中仍为空的区域（说明该区域没有明细目标值），恢复用户直接填的汇总值
+  Object.keys(data.summary || {}).forEach(function(region) {
+    var cell = document.querySelector('td.target[data-type="region"][data-region="'+region+'"]');
+    if (cell && !cell.textContent.trim() && data.summary[region]) {
+      cell.textContent = data.summary[region];
+    }
+  });
+  // 重新算合计
+  var grand = 0;
+  document.querySelectorAll('td.target[data-type="region"]').forEach(function(c) {
+    var v = parseFloat(c.textContent.replace(/,/g,''));
+    if (!isNaN(v)) grand += v;
+  });
+  var tc = document.getElementById('total-target');
+  if (tc) tc.textContent = grand > 0 ? grand.toLocaleString() : '';
+}
+
 // 页面加载后恢复
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', restoreCustomRows);
-} else {
+function restoreAllData() {
   restoreCustomRows();
+  restoreTargets();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', restoreAllData);
+} else {
+  restoreAllData();
 }
 
 // ====== 关键发现 localStorage 持久化 ======
@@ -2118,6 +2181,8 @@ document.addEventListener('focusout', function(e) {
   // 新增行的目标值 → 存 localStorage
   var nrow = e.target.closest('tr.new-row');
   if (nrow) updateRowCell(nrow, 'target');
+  // 保存所有目标值（原项目行 + 汇总表区域行）→ 刷新不丢
+  saveTargets();
 });
 
 // 按键过滤：只允许数字、退格、删除、方向键、小数点
@@ -2418,10 +2483,14 @@ if (document.readyState === 'loading') {
   renderRegionChart();
 }
 
-// MutationObserver：汇总表任何变化 → 重新渲染图表
+// MutationObserver：汇总表变化 → 防抖后重绘图表（数据没变则跳过）
+var _chartDebounce = null;
 var summaryTableEl = document.querySelector('.summary-table tbody');
 if (summaryTableEl && typeof MutationObserver !== 'undefined') {
-  var chartObserver = new MutationObserver(function() { renderRegionChart(); });
+  var chartObserver = new MutationObserver(function() {
+    clearTimeout(_chartDebounce);
+    _chartDebounce = setTimeout(renderRegionChart, 200);
+  });
   chartObserver.observe(summaryTableEl, { childList: true, subtree: true, characterData: true });
 }
 </script>
