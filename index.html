@@ -149,11 +149,126 @@ tr.new-row td[contenteditable="true"]:empty::before {
 .insight[contenteditable="true"]:hover { background: #fffbe6; border-left-color: #faad14; }
 .insight[contenteditable="true"]:focus { outline: none; background: #fff; border-left-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.15); }
 
-/* Responsive */
+/* ====== 表格滚动容器（JS动态添加）====== */
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 4px;
+  position: relative;
+}
+.table-scroll-wrapper::-webkit-scrollbar { height: 5px; }
+.table-scroll-wrapper::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 3px; }
+.table-scroll-wrapper::-webkit-scrollbar-thumb { background: #bbb; border-radius: 3px; }
+.table-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #999; }
+
+/* 滚动提示 */
+.scroll-hint {
+  display: none;
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 6px;
+  align-items: center;
+  gap: 4px;
+}
+.scroll-hint::before { content: "\2194"; font-size: 14px; }
+
+/* ====== 响应式：平板 ====== */
+@media (max-width: 1024px) {
+  .charts-row { display: flex; flex-direction: column; gap: 0; }
+  .chart-wrap { height: 300px; }
+}
+
+/* ====== 响应式：手机 ====== */
 @media (max-width: 768px) {
-  .container { padding: 12px 8px; }
-  .card { padding: 12px; }
-  .detail-table { font-size: 11px; }
+  /* 布局 */
+  .container { padding: 10px 8px 32px; }
+  .header { margin-bottom: 20px; }
+  .header h1 { font-size: 18px; line-height: 1.4; }
+  .header .subtitle { font-size: 12px; }
+  .header .meta { font-size: 11px; }
+
+  /* 卡片 */
+  .card { padding: 12px 10px; margin-bottom: 14px; border-radius: 6px; }
+  .card-title { font-size: 15px; margin-bottom: 12px; padding-bottom: 8px; }
+  .chart-card { padding: 12px 10px; border-radius: 6px; }
+  .chart-title { font-size: 13px; margin-bottom: 12px; padding-bottom: 8px; white-space: normal; line-height: 1.4; }
+  .chart-title .chart-sub { display: block; margin-left: 0; margin-top: 2px; font-size: 10px; }
+  .chart-wrap { height: 240px; }
+
+  /* 滚动提示在移动端显示 */
+  .scroll-hint { display: flex; }
+
+  /* 汇总表 */
+  .summary-table { font-size: 11px; min-width: 600px; }
+  .summary-table th { padding: 6px 4px; }
+  .summary-table td { padding: 6px 4px; }
+  .summary-table .metric-label { font-size: 10px; }
+  /* 首列粘性 */
+  .summary-table th:first-child,
+  .summary-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: #fff;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.06);
+  }
+  .summary-table th:first-child { background: #f0f2f5; z-index: 4; }
+  .summary-table .total-row td:first-child { background: #fff8e8; z-index: 4; }
+  .summary-table .metric-label:first-child { background: #fafafa; }
+
+  /* 明细表 */
+  .detail-table { font-size: 10px; min-width: 580px; }
+  .detail-table th { padding: 5px 3px; }
+  .detail-table td { padding: 5px 3px; }
+  .detail-table .group-row th { font-size: 11px; padding: 7px 3px; }
+  /* 首列粘性 */
+  .detail-table th.grp-name,
+  .detail-table td.grp-name {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    min-width: 72px;
+    max-width: 100px;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.06);
+  }
+  .detail-table th.grp-name { background: #f5f7fa; z-index: 4; }
+  .detail-table .sub-total td.grp-name { background: #f0f5ff; z-index: 4; }
+  tr.new-row td.grp-name { background: #fffbe6; z-index: 4; }
+
+  /* 区域标题 */
+  .region-section { margin-bottom: 20px; }
+  .region-header { flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .region-header h3 { font-size: 15px; }
+  .region-header .badge { font-size: 11px; padding: 2px 8px; }
+
+  /* 关键发现 */
+  .insight { padding: 10px 12px; font-size: 12px; line-height: 1.7; margin: 6px 0; }
+  .insight strong { font-size: 12px; }
+
+  /* 可编辑目标单元格 */
+  td.target[contenteditable="true"] { min-width: 50px; padding: 5px 3px !important; }
+
+  /* 按钮 */
+  .btn-add-row { padding: 8px 16px; font-size: 13px; }
+  .table-actions { padding: 8px 0 0 0; }
+
+  /* 说明文字 */
+  .card > div[style*="margin-top"] { font-size: 11px !important; }
+
+  /* 页脚 */
+  .card[style*="text-align"] { font-size: 11px; }
+}
+
+/* ====== 响应式：小手机 ====== */
+@media (max-width: 380px) {
+  .header h1 { font-size: 16px; }
+  .summary-table { font-size: 10px; min-width: 550px; }
+  .summary-table th, .summary-table td { padding: 5px 3px; }
+  .detail-table { font-size: 9px; min-width: 540px; }
+  .detail-table th, .detail-table td { padding: 4px 2px; }
+  .detail-table th.grp-name, .detail-table td.grp-name { min-width: 62px; max-width: 88px; }
+  .chart-wrap { height: 200px; }
+  .card { padding: 10px 8px; }
 }
 </style>
 </head>
@@ -2698,6 +2813,60 @@ if (document.readyState === 'loading') {
 } else {
   renderYoyChart();
 }
+
+// ====== 移动端表格滚动容器 + 滚动提示 ======
+function wrapTablesForScroll() {
+  var tables = document.querySelectorAll('table.summary-table, table.detail-table');
+  tables.forEach(function(table) {
+    if (table.parentElement.classList.contains('table-scroll-wrapper')) return;
+    var wrapper = document.createElement('div');
+    wrapper.className = 'table-scroll-wrapper';
+    table.parentNode.insertBefore(wrapper, table);
+    wrapper.appendChild(table);
+    // 添加滚动提示
+    var hint = document.createElement('div');
+    hint.className = 'scroll-hint';
+    hint.textContent = '左右滑动查看完整数据';
+    wrapper.parentNode.insertBefore(hint, wrapper);
+  });
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', wrapTablesForScroll);
+} else {
+  wrapTablesForScroll();
+}
+
+// ====== 移动端图表自适应：重写图表渲染以适配小屏 ======
+var _isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+// 重写 renderRegionChart 以适配移动端字体
+var _origRenderRegionChart = renderRegionChart;
+renderRegionChart = function() {
+  _origRenderRegionChart();
+  if (_isMobile && regionChart) {
+    regionChart.options.scales.y.ticks.font.size = 11;
+    regionChart.options.scales.x.ticks.font.size = 10;
+    regionChart.options.scales.x.ticks.maxRotation = 0;
+    regionChart.update('none');
+  }
+};
+
+// 重写 renderYoyChart 以适配移动端字体
+var _origRenderYoyChart = renderYoyChart;
+renderYoyChart = function() {
+  _origRenderYoyChart();
+  if (_isMobile && yoyChart) {
+    yoyChart.options.scales.y.ticks.font.size = 11;
+    yoyChart.options.scales.x.ticks.font.size = 10;
+    yoyChart.options.scales.x.ticks.maxRotation = 0;
+    yoyChart.update('none');
+  }
+};
+
+// 监听屏幕旋转/尺寸变化
+window.addEventListener('resize', function() {
+  _isMobile = window.matchMedia('(max-width: 768px)').matches;
+});
 
 // MutationObserver：汇总表变化 → 防抖后重绘图表（数据没变则跳过）
 var _chartDebounce = null;
